@@ -22,9 +22,15 @@ QID_NAME := $(DATDIR)/queryName_qid_name.txt
 QID_DID := $(DATDIR)/qid_did.txt
 QID_DID_STRING_EID := $(DATDIR)/qid_did_string_eid.txt
 
+# output
+BASELINE0 := $(OUTDIR)/baseline0.txt
+BASELINE1 := $(OUTDIR)/baseline1.txt
+BASELINE2 := $(OUTDIR)/baseline2.txt
+BASELINE3 := $(OUTDIR)/baseline3.txt
+
 # ------------------------------------------------------------------------------
 
-all: RAW
+all: BASELINE
 
 # ------------------------------------------------------------------------------
 
@@ -59,6 +65,14 @@ $(OUTDIR):
 # create results directory
 $(RESDIR):
 	mkdir $(RESDIR)
+
+# ------------------------------------------------------------------------------
+
+# baseline clustering
+BASELINE: $(BASELINE0) 
+
+$(BASELINE0): $(QID_DID_STRING_EID) | $(OUTDIR)
+	python $(BASDIR)/baseline0.py $(QID_DID_STRING_EID) > $(BASELINE0)
 
 # ------------------------------------------------------------------------------
 
