@@ -1,1 +1,3 @@
 should all raw input be sanitized (i.e. converted to lower case etc.)?
+create config file with clustering parameters
+do preprocessing on inQuery and inDocument (drop dummy column)
