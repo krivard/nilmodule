@@ -69,10 +69,13 @@ $(RESDIR):
 # ------------------------------------------------------------------------------
 
 # baseline clustering
-BASELINE: $(BASELINE0) 
+BASELINE: $(BASELINE0) $(BASELINE1)
 
 $(BASELINE0): $(QID_DID_STRING_EID) | $(OUTDIR)
 	python $(BASDIR)/baseline0.py $(QID_DID_STRING_EID) > $(BASELINE0)
+
+$(BASELINE1): $(QID_DID_STRING_EID) | $(OUTDIR)
+	python $(BASDIR)/baseline1.py $(QID_DID_STRING_EID) > $(BASELINE1)
 
 # ------------------------------------------------------------------------------
 
