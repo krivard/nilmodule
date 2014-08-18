@@ -2,19 +2,23 @@
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3/
 PROPPR := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 
-# data, output and results directories
+# project directories
 DATDIR := data
 OUTDIR := output
 RESDIR := results
+SRCDIR := src
 
 # raw input
 QID_EID := $(DATDIR)/qid_eid.txt
 
-# src folder
-SRCDIR := src
-
+# targets
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
 
 $(DATDIR):
 	mkdir $(DATDIR)
+
+clean:
+	rm -rf $(DATDIR) $(OUTDIR) $(RESDIR)
+
+.PHONY: clean
