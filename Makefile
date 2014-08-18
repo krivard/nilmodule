@@ -18,8 +18,9 @@ PREDIR := $(SRCDIR)/preprocessing
 
 # raw input
 QID_EID := $(DATDIR)/qid_eid.txt
-QID_STR := $(DATDIR)/queryName_qid_name.txt
+QID_NAME := $(DATDIR)/queryName_qid_name.txt
 QID_DID := $(DATDIR)/qid_did.txt
+QID_DID_STRING_EID := $(DATDIR)/qid_did_string_eid.txt
 
 # ------------------------------------------------------------------------------
 
@@ -28,17 +29,22 @@ all: RAW
 # ------------------------------------------------------------------------------
 
 # obtain raw input from external sources
-RAW : $(QID_EID) $(QID_STR) $(QID_DID)
+#RAW : $(QID_EID) $(QID_NAME) $(QID_DID)
+RAW : $(QID_DID_STRING_EID)
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
 
-$(QID_STR): | $(DATDIR)
-	cp $(QNAME) $(QID_STR)
+$(QID_NAME): | $(DATDIR)
+	cp $(QNAME) $(QID_NAME)
 
 # TODO NB ORDER HAS BEEN CHANGED FROM (DID, QID) TO (QID, DID)
 $(QID_DID): | $(DATDIR)
-	./$(PREDIR)/parse_did.py < $(SCORE) > $(QID_DID)
+	python $(PREDIR)/parse_did.py < $(SCORE) > $(QID_DID)
+
+$(QID_DID_STRING_EID): $(QID_EID) $(QID_NAME) $(QID_DID) | $(DATDIR)
+	python $(PREDIR)/generate_qid_did_string_eid.py \
+		$(QID_EID) $(QID_NAME) $(QID_DID) > $(QID_DID_STRING_EID)
 
 # ------------------------------------------------------------------------------
 
