@@ -7,9 +7,10 @@ TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
 
 # project directories (top-level) 
 DATDIR := data
+EXPDIR := resources/ExploreEM_package_v2
 OUTDIR := output
 RESDIR := results
-EXPDIR := resources/ExploreEM_package_v2
+RSCDIR := resources
 SRCDIR := src
 
 # src subdirectories
@@ -77,19 +78,30 @@ $(RESDIR):
 # baseline clustering
 BASELINE: $(BASELINE0) $(BASELINE1) $(BASELINE2) $(BASELINE3) 
 
-$(BASELINE0): $(QID_DID_STRING_EID) | $(OUTDIR)
-	python $(BASDIR)/baseline0.py $(QID_DID_STRING_EID) > $(BASELINE0)
+$(BASELINE0): $(QID_DID_STRING_EID) venv | $(OUTDIR)
+	. venv/bin/activate; python $(BASDIR)/baseline0.py \
+		$(QID_DID_STRING_EID) > $(BASELINE0)
 
-$(BASELINE1): $(QID_DID_STRING_EID) | $(OUTDIR)
-	python $(BASDIR)/baseline1.py $(QID_DID_STRING_EID) > $(BASELINE1)
+$(BASELINE1): $(QID_DID_STRING_EID) venv | $(OUTDIR)
+	. venv/bin/activate; python $(BASDIR)/baseline1.py \
+		$(QID_DID_STRING_EID) > $(BASELINE1)
 
-$(BASELINE2): $(QID_DID_STRING_EID) $(DID_TOK) | $(OUTDIR)
-	python $(BASDIR)/baseline2.py $(QID_DID_STRING_EID) $(DID_TOK) \
-		> $(BASELINE2)
+$(BASELINE2): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
+	. venv/bin/activate; python $(BASDIR)/baseline2.py \
+		$(QID_DID_STRING_EID) $(DID_TOK)  > $(BASELINE2)
 
-$(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) | $(OUTDIR)
-	python $(BASDIR)/baseline3.py $(QID_DID_STRING_EID) $(DID_TOK) $(EXPDIR) \
-		> $(BASELINE3)
+$(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
+	. venv/bin/activate; python $(BASDIR)/baseline3.py \
+		$(QID_DID_STRING_EID) $(DID_TOK) $(EXPDIR)  > $(BASELINE3)
+
+# ------------------------------------------------------------------------------
+
+venv: venv/bin/activate
+
+venv/bin/activate: $(RSCDIR)/requirements.txt
+	test -d venv || virtualenv venv
+	. venv/bin/activate; pip install -Ur $(RSCDIR)/requirements.txt
+	touch venv/bin/activate
 
 # ------------------------------------------------------------------------------
 
