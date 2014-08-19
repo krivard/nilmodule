@@ -49,11 +49,11 @@ $(QID_NAME): | $(DATDIR)
 	cp $(QNAME) $(QID_NAME)
 
 # TODO NB ORDER HAS BEEN CHANGED FROM (DID, QID) TO (QID, DID)
-$(QID_DID): | $(DATDIR)
-	python $(PREDIR)/parse_did.py < $(SCORE) > $(QID_DID)
+$(QID_DID): venv | $(DATDIR)
+	. venv/bin/activate; python $(PREDIR)/parse_did.py < $(SCORE) > $(QID_DID)
 
-$(QID_DID_STRING_EID): $(QID_EID) $(QID_NAME) $(QID_DID) | $(DATDIR)
-	python $(PREDIR)/generate_qid_did_string_eid.py \
+$(QID_DID_STRING_EID): $(QID_EID) $(QID_NAME) $(QID_DID) venv | $(DATDIR)
+	. venv/bin/activate; python $(PREDIR)/generate_qid_did_string_eid.py \
 		$(QID_EID) $(QID_NAME) $(QID_DID) > $(QID_DID_STRING_EID)
 
 $(DID_TOK): | $(DATDIR)
@@ -96,6 +96,7 @@ $(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
 
 # ------------------------------------------------------------------------------
 
+# create virtualenv
 venv: venv/bin/activate
 
 venv/bin/activate: $(RSCDIR)/requirements.txt
