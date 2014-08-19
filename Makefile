@@ -20,11 +20,12 @@ USLDIR := $(SRCDIR)/unsupervised
 PREDIR := $(SRCDIR)/preprocessing
 
 # raw input
+DID_TOK := $(DATDIR)/inDocument_did_tok.txt
 QID_EID := $(DATDIR)/qid_eid.txt
-QID_NAME := $(DATDIR)/queryName_qid_name.txt
 QID_DID := $(DATDIR)/qid_did.txt
 QID_DID_STRING_EID := $(DATDIR)/qid_did_string_eid.txt
-DID_TOK := $(DATDIR)/inDocument_did_tok.txt
+QID_NAME := $(DATDIR)/queryName_qid_name.txt
+QID_RID := $(DATDIR)/qid_rid.txt
 
 # output
 BASELINE0 := $(OUTDIR)/baseline0.txt
@@ -39,8 +40,7 @@ all: BASELINE
 # ------------------------------------------------------------------------------
 
 # obtain raw input from external sources
-#RAW : $(QID_EID) $(QID_NAME) $(QID_DID)
-RAW : $(QID_DID_STRING_EID) $(DID_TOK)
+RAW : $(QID_DID_STRING_EID) $(DID_TOK) 
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
@@ -58,6 +58,11 @@ $(QID_DID_STRING_EID): $(QID_EID) $(QID_NAME) $(QID_DID) venv | $(DATDIR)
 
 $(DID_TOK): | $(DATDIR)
 	cp $(TOKEN) $(DID_TOK)
+
+# TODO RAW FOR USL AND SSL
+$(QID_RID): venv | $(DATDIR)
+	. venv/bin/activate; python $(PREDIR)/generate_qid_rid.py \
+		$(QID_EID) > $(QID_RID)
 
 # ------------------------------------------------------------------------------
 
@@ -107,6 +112,7 @@ venv/bin/activate: $(RSCDIR)/requirements.txt
 # ------------------------------------------------------------------------------
 
 # remove data, output, and results
+# TODO include venv/ and build/ in clean?
 clean:
 	rm -rf $(DATDIR) $(OUTDIR) $(RESDIR)
 
