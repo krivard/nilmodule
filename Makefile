@@ -29,6 +29,7 @@ QID_NAME := $(DATDIR)/queryName_qid_name.txt
 QID_RID := $(DATDIR)/qid_rid.txt
 STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
 DID_FEATURE := $(DATDIR)/qid_rid_did_value_weight.txt
+TOKEN_FEATURE := $(DATDIR)/qid_rid_token_value_weight.txt
 
 # output
 BASELINE0 := $(OUTDIR)/baseline0.txt
@@ -43,10 +44,10 @@ all: BASELINE
 # ------------------------------------------------------------------------------
 
 # obtain raw input from external sources
-RAW : $(QID_DID_STRING_EID) $(DID_TOK)
+raw : $(QID_DID_STRING_EID) $(DID_TOK)
 
 #TODO DEBUG
-FEATURES : $(STRING_FEATURE) $(DID_FEATURE)
+features : $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE)
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
@@ -77,6 +78,10 @@ $(STRING_FEATURE): $(QID_NAME) $(QID_RID) venv | $(DATDIR)
 $(DID_FEATURE): $(QID_DID) $(QID_RID) venv | $(DATDIR)
 	. venv/bin/activate; python $(PREDIR)/generate_qid_rid_did_value_weight.py \
 		$(QID_DID) $(QID_RID) > $(DID_FEATURE)
+
+$(TOKEN_FEATURE): $(DID_TOK) $(DID_FEATURE) venv | $(DATDIR)
+	. venv/bin/activate; python $(PREDIR)/generate_qid_rid_term_value_weight.py \
+		$(DID_TOK) $(DID_FEATURE) > $(TOKEN_FEATURE)
 
 # ------------------------------------------------------------------------------
 
