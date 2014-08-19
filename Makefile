@@ -9,6 +9,7 @@ TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
 DATDIR := data
 OUTDIR := output
 RESDIR := results
+EXPDIR := resources/ExploreEM_package_v2
 SRCDIR := src
 
 # src subdirectories
@@ -74,7 +75,7 @@ $(RESDIR):
 # ------------------------------------------------------------------------------
 
 # baseline clustering
-BASELINE: $(BASELINE0) $(BASELINE1) $(BASELINE2)
+BASELINE: $(BASELINE0) $(BASELINE1) $(BASELINE2) $(BASELINE3) 
 
 $(BASELINE0): $(QID_DID_STRING_EID) | $(OUTDIR)
 	python $(BASDIR)/baseline0.py $(QID_DID_STRING_EID) > $(BASELINE0)
@@ -85,6 +86,10 @@ $(BASELINE1): $(QID_DID_STRING_EID) | $(OUTDIR)
 $(BASELINE2): $(QID_DID_STRING_EID) $(DID_TOK) | $(OUTDIR)
 	python $(BASDIR)/baseline2.py $(QID_DID_STRING_EID) $(DID_TOK) \
 		> $(BASELINE2)
+
+$(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) | $(OUTDIR)
+	python $(BASDIR)/baseline3.py $(QID_DID_STRING_EID) $(DID_TOK) $(EXPDIR) \
+		> $(BASELINE3)
 
 # ------------------------------------------------------------------------------
 

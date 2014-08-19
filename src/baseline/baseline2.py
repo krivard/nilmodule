@@ -28,7 +28,8 @@ df1 = pd.read_table(QID_DID_STRING_EID, header=None,
 # Select queries where 'eid' is NIL
 df2 = df1[df1['eid'] == 'nil']
 
-df3 = pd.read_table(DID_TOK, header=None, names=['inDocument', 'did', 'tok'])
+df3 = pd.read_table(DID_TOK, header=None, 
+        names=['inDocument', 'did', 'tok'])
 
 # Create docs
 terms = df3.groupby('did')['tok'].apply(pd.Series.unique)

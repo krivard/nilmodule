@@ -1,0 +1,92 @@
+This is matlab code for Exploratory EM algorithm presented in paper
+
+Exploratory Learning , Bhavana Dalvi Mishra, William W. Cohen and Jamie Callan, 
+in Proceedings of European Conference on “Machine Learning” ECML/PKDD 2013 
+
+This implementation includes K-Means algorithm and its exploratory variant.
+Various parameter settings, inputs and outputs are described below.
+**********************************************************************************
+
+Parameters
+==========
+You can change the parameter setting at the start of All_BIC_ExplEM_Main.m.
+
+% Maximum number of EM iterations (algorithm might terminate earlier
+% if log likelihood/cluster assignments converge)
+maxNumIter = 50;
+
+% represnetation : 0 - K-Means
+repr = 0;
+representation = 'KM';
+
+% hard = 1 : Hard assignments of points to clusters
+%            Every datapoint belongs to only one of the clusters
+% hard = 0 : Soft assignments of points to clusters
+hard = 1;
+
+% Criterion = 0 : MinMax criterion
+%           = 1 : JS divergence
+criterion = 0;
+
+% Number of seed classes
+numSeedClasses = 5;
+
+% experiment ID : used to create filename
+exptID = '1';
+
+% model selection criterion can be one of
+% AIC / BIC / AICC criteria
+modelSelection = 'AICC';
+
+
+Inputs
+=======
+
+`data' directory contains toy data to run this k-means clustering code.
+
+* data.X.txt has a sparse data matrix, each row is of following format
+  row-id   feature-id  weight
+	
+	row-id: document id that ranges from 1 to number of documents (document = entity = data-point that is being clustered)
+	feature-id: integer id of feature ranging from 1 to number of features
+	weight : non-negative real number that defines weight of feature for the corresponding document
+
+* data.Y.txt is a sparse labels matrix. In our datasets this contains labels for all data points. Each data point has only one label. We assume that classes are mutually exclusive in our experiments (hard = 1 parameter setting). If your classes are overlapping then you should use Soft-EM setting (hard = 0) paramter setting in the algorithm. 
+  Each row is of following format
+  row-id label-id score
+
+	row-id: document id that ranges from 1 to number of documents (document = entity = data-point, something that is being clustered)
+	label-id/class-id: integer id for the class the data-point belongs to, ranges from 1 to number of classes
+	score: non-negative real number that defines the score of class label for the data point. These can all be set to 1, if you do not have a notion of scores. Scores are not used by our clustering algorithm, it can be used later for evaluation purposes.
+
+
+* seeds.Y.txt is a sparse matrix of seed data for seed clusters, each row is of same format as data.Y.txt
+  The only difference being, our clustering algorithm will use only seeds.Y.txt to intitialize the clusters and run EM later. Note that data.Y.txt is not used by clustering algorithm to take any clustering/initialization decisions. Its only used for evaluating the clustering produced as a result of the algorithm.
+ 
+If you do not have completely labeled dataset then you can keep seeds.Y.txt = data.Y.txt, and do a manual qualitative evaluation of clusters produced.
+
+
+Outputs
+========
+Output is produced in the same directory as input data. The file prefix is created using the parameter setting chosen by you in All_BIC_ExplEM_Main.m. This can be changed by changing the variable outputFilePrefix in All_BIC_ExplEM_Main.m.
+
+* PREFIX.assgn.txt: Contains cluster assignments for each data point
+  if D is number of datapoints and C is number of clusters
+  There will be D lines in the file, each line containing C numebr of scores, one for each cluster
+  This output needs to be postprocessed to evaulate clustering.
+  If seeds.Y.txt is sorted by class-id and contains class-ids from 1 to k, then output clusters 1 to k will correspond to clusters 1 to k in the seed data.
+  Otherwise output cluster-ids should not be used or confused with seed cluster ids.
+  Each cluster can be labeled with a majority label using data.Y.txt or manual evaluation.
+  Also if explore = 1, then number of clusters in the output >= number of clusters in the input.
+
+* PREFIX.centroids.txt: Contains cluster centroids 
+  if there are C clusters in the output and F number of features in data.X.txt then
+  centroids file will have C lines, each lien containing F columns, each entry being weight of that feature for the particular centroid.
+
+* PREFIX.seeds.txt: Contains the seeds used by the algorithm in a file. You can ignore this output. 
+ 
+* PREFIX.clusters.txt: Contains other stats produced by running the algorithm
+  format: numSeedClasses   maxNumIterations  representation    hard   explore  criterion   TerminationIteration numClustersProduced timeTaken avgL2 newClassProbability
+
+
+ 
