@@ -34,6 +34,8 @@ EID_FEATURE := $(DATDIR)/qid_rid_eid_value_weight.txt
 STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
 TOKEN_FEATURE := $(DATDIR)/qid_rid_token_value_weight.txt
 
+RID_FID_WEIGHT := $(DATDIR)/rid_fid_weight.txt
+
 # output
 BASELINE0 := $(OUTDIR)/baseline0.txt
 BASELINE1 := $(OUTDIR)/baseline1.txt
@@ -47,10 +49,7 @@ all: baseline
 # ------------------------------------------------------------------------------
 
 # obtain raw input from external sources
-raw : $(QID_DID_STRING_EID) $(DID_TOK)
-
-#TODO DEBUG
-features : $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) $(EID_FEATURE)
+raw : $(QID_DID_STRING_EID) $(RID_FID_WEIGHT)
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
@@ -93,6 +92,12 @@ $(TOKEN_FEATURE): $(DID_TOK) $(DID_FEATURE) venv | $(DATDIR)
 $(EID_FEATURE): $(QID_EID_SCORE) $(QID_RID) venv | $(DATDIR)
 	. venv/bin/activate; python $(PREDIR)/generate_qid_rid_eid_value_weight.py \
 		$(QID_EID_SCORE) $(QID_RID) > $(EID_FEATURE)
+
+$(RID_FID_WEIGHT): $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) \
+		$(EID_FEATURE) venv | $(DATDIR)
+	. venv/bin/activate; python $(PREDIR)/generate_rid_fid_weight.py \
+		$(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) $(EID_FEATURE) \
+		> $(RID_FID_WEIGHT)
 
 # ------------------------------------------------------------------------------
 
