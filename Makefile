@@ -20,15 +20,17 @@ USLDIR := $(SRCDIR)/unsupervised
 PREDIR := $(SRCDIR)/preprocessing
 
 # raw input
-DID_TOK := $(DATDIR)/inDocument_did_tok.txt
-QID_EID := $(DATDIR)/qid_eid.txt
 QID_DID := $(DATDIR)/qid_did.txt
 QID_DID_STRING_EID := $(DATDIR)/qid_did_string_eid.txt
+QID_EID := $(DATDIR)/qid_eid.txt
 QID_NAME := $(DATDIR)/queryName_qid_name.txt
+DID_TOK := $(DATDIR)/inDocument_did_tok.txt
 
+QID_EID_SCORE := $(DATDIR)/qid_eid_score.txt
 QID_RID := $(DATDIR)/qid_rid.txt
-STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
+
 DID_FEATURE := $(DATDIR)/qid_rid_did_value_weight.txt
+STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
 TOKEN_FEATURE := $(DATDIR)/qid_rid_token_value_weight.txt
 
 # output
@@ -47,7 +49,7 @@ all: BASELINE
 raw : $(QID_DID_STRING_EID) $(DID_TOK)
 
 #TODO DEBUG
-features : $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE)
+features : $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) $(QID_EID_SCORE)
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
@@ -56,7 +58,7 @@ $(QID_NAME): | $(DATDIR)
 	cp $(QNAME) $(QID_NAME)
 
 # TODO NB ORDER HAS BEEN CHANGED FROM (DID, QID) TO (QID, DID)
-$(QID_DID): venv | $(DATDIR)
+$(QID_DID): $(SCORE) venv | $(DATDIR)
 	. venv/bin/activate; python $(PREDIR)/parse_did.py < $(SCORE) > $(QID_DID)
 
 $(QID_DID_STRING_EID): $(QID_EID) $(QID_NAME) $(QID_DID) venv | $(DATDIR)
@@ -70,6 +72,10 @@ $(DID_TOK): | $(DATDIR)
 $(QID_RID): venv | $(DATDIR)
 	. venv/bin/activate; python $(PREDIR)/generate_qid_rid.py \
 		$(QID_EID) > $(QID_RID)
+
+$(QID_EID_SCORE): $(SCORE) venv | $(DATDIR)
+	. venv/bin/activate; python $(PREDIR)/parse_score.py < $(SCORE) \
+		> $(QID_EID_SCORE)
 
 $(STRING_FEATURE): $(QID_NAME) $(QID_RID) venv | $(DATDIR)
 	. venv/bin/activate; python $(PREDIR)/generate_qid_rid_string_value_weight.py \
