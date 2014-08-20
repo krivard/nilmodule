@@ -30,6 +30,7 @@ QID_EID_SCORE := $(DATDIR)/qid_eid_score.txt
 QID_RID := $(DATDIR)/qid_rid.txt
 
 DID_FEATURE := $(DATDIR)/qid_rid_did_value_weight.txt
+EID_FEATURE := $(DATDIR)/qid_rid_eid_value_weight.txt
 STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
 TOKEN_FEATURE := $(DATDIR)/qid_rid_token_value_weight.txt
 
@@ -41,7 +42,7 @@ BASELINE3 := $(OUTDIR)/baseline3.txt
 
 # ------------------------------------------------------------------------------
 
-all: BASELINE
+all: baseline
 
 # ------------------------------------------------------------------------------
 
@@ -49,7 +50,7 @@ all: BASELINE
 raw : $(QID_DID_STRING_EID) $(DID_TOK)
 
 #TODO DEBUG
-features : $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) $(QID_EID_SCORE)
+features : $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) $(EID_FEATURE)
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
@@ -89,6 +90,10 @@ $(TOKEN_FEATURE): $(DID_TOK) $(DID_FEATURE) venv | $(DATDIR)
 	. venv/bin/activate; python $(PREDIR)/generate_qid_rid_term_value_weight.py \
 		$(DID_TOK) $(DID_FEATURE) > $(TOKEN_FEATURE)
 
+$(EID_FEATURE): $(QID_EID_SCORE) $(QID_RID) venv | $(DATDIR)
+	. venv/bin/activate; python $(PREDIR)/generate_qid_rid_eid_value_weight.py \
+		$(QID_EID_SCORE) $(QID_RID) > $(EID_FEATURE)
+
 # ------------------------------------------------------------------------------
 
 # create data directory
@@ -106,20 +111,24 @@ $(RESDIR):
 # ------------------------------------------------------------------------------
 
 # baseline clustering
-BASELINE: $(BASELINE0) $(BASELINE1) $(BASELINE2) $(BASELINE3) 
+baseline: $(BASELINE0) $(BASELINE1) $(BASELINE2) $(BASELINE3) 
 
+# string only
 $(BASELINE0): $(QID_DID_STRING_EID) venv | $(OUTDIR)
 	. venv/bin/activate; python $(BASDIR)/baseline0.py \
 		$(QID_DID_STRING_EID) > $(BASELINE0)
 
+# string and did
 $(BASELINE1): $(QID_DID_STRING_EID) venv | $(OUTDIR)
 	. venv/bin/activate; python $(BASDIR)/baseline1.py \
 		$(QID_DID_STRING_EID) > $(BASELINE1)
 
+# string and document distance (agglomerative)
 $(BASELINE2): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
 	. venv/bin/activate; python $(BASDIR)/baseline2.py \
 		$(QID_DID_STRING_EID) $(DID_TOK)  > $(BASELINE2)
 
+# string and document distance (exploratory)
 $(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
 	. venv/bin/activate; python $(BASDIR)/baseline3.py \
 		$(QID_DID_STRING_EID) $(DID_TOK) $(EXPDIR)  > $(BASELINE3)
@@ -129,6 +138,7 @@ $(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
 # create virtualenv
 venv: venv/bin/activate
 
+# activate virtualenv
 venv/bin/activate: $(RSCDIR)/requirements.txt
 	test -d venv || virtualenv venv
 	. venv/bin/activate; pip install -Ur $(RSCDIR)/requirements.txt

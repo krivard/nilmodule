@@ -6,26 +6,24 @@ import sys
 
 # Parse path to input files
 parser = argparse.ArgumentParser()
-parser.add_argument('DID_TOK')
-parser.add_argument('DID_FEATURE')
-
-# TODO ################################
+parser.add_argument('QID_EID_SCORE')
+parser.add_argument('QID_RID')
 
 args = parser.parse_args()
-DID_TOK = args.DID_TOK
-DID_FEATURE = args.DID_FEATURE
-
+QID_EID_SCORE = args.QID_EID_SCORE
+QID_RID = args.QID_RID
 
 # Load 'did eid score' and 'qid rid' into dataframe and merge
-df1 = pd.read_table('input/s5/qid_eid_score.txt', header=None, names=['qid', 'eid', 'score'])
-df2 = pd.read_table('input/s5/qid_rid.txt', header=None, names=['qid', 'rid'])
+df1 = pd.read_table(QID_EID_SCORE, header=None, names=['qid', 'eid', 'score'])
+df2 = pd.read_table(QID_RID, header=None, names=['qid', 'rid'])
 df3 = pd.merge(df1, df2, on='qid')
 
-# Sort by ascending 'rid' and 'score'
-df4 = df3.sort(columns=['rid', 'score'])
+# Sort by ascending 'rid' and descending 'score'
+df4 = df3.sort(columns=['rid', 'score'], ascending=[True, False])
 
 # Create 'feature' column
 df4['feature'] = 'eid'
 
 # Write 'qid rid feature eid score' to file
-df4[['qid', 'rid', 'feature', 'eid', 'score']].to_csv('output/s5/qid_rid_eid_value_weight.txt', header=False, index=False,  sep='\t')
+df4[['qid', 'rid', 'feature', 'eid', 'score']].to_csv(sys.stdout, 
+        header=False, index=False,  sep='\t')
