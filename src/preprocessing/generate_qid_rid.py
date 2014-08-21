@@ -18,6 +18,7 @@ df = df.sort(columns='qid')
 
 # Where 'eid' is NIL
 df = df[df['eid'] == 'nil']
+df.reset_index(inplace=True)
 
 # Assign 'rid' ranging from 1 to #NIL
 df['rid'] = df.index + 1

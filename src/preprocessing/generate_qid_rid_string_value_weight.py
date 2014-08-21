@@ -14,8 +14,8 @@ QID_NAME = args.QID_NAME
 QID_RID = args.QID_RID
 
 # Load 'qid string' and 'qid rid' into dataframe and merge
-df1 = pd.read_table(QID_NAME, header=False, names=['queryName', 'qid', 'string'])
-df2 = pd.read_table(QID_RID, header=False, names=['qid', 'rid'])
+df1 = pd.read_table(QID_NAME, header=None, names=['queryName', 'qid', 'string'])
+df2 = pd.read_table(QID_RID, header=None, names=['qid', 'rid'])
 df3 = pd.merge(df2, df1, on='qid')
 
 # Create 'feature' and 'weight' column

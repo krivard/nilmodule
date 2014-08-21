@@ -39,6 +39,12 @@ RID_FID_WEIGHT := $(DATDIR)/rid_fid_weight.txt
 DATA_X := $(IPTDIR)/data.X.txt
 DATA_Y := $(IPTDIR)/data.Y.txt
 
+# exploreEM input
+ASSGN := $(IPTDIR)/KM*explore*.assgn.txt
+
+# TODO refactor ". venv/bin/activate python" into PYTHON
+PYTHON := . venv/bin/activate; python
+
 # matlab
 M_FLAGS := -nodesktop -nosplash -r
 EM_MAIN := "try, All_BIC_ExplEM_Main; catch, end, exit"
@@ -57,11 +63,13 @@ all: baseline
 # ------------------------------------------------------------------------------
 
 # obtain raw input from external sources
+.PHONY: raw
 raw : $(QID_DID_STRING_EID) $(RID_FID_WEIGHT)
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
 
+# TODO PROBLEM: PROPPR REMOVES NAMES WITH SPECIAL CHARACTERS; POLICY?
 $(QID_NAME): | $(DATDIR)
 	cp $(QNAME) $(QID_NAME)
 
@@ -124,6 +132,7 @@ $(RESDIR):
 # ------------------------------------------------------------------------------
 
 # baseline clustering
+.PHONY: baseline
 baseline: $(BASELINE0) $(BASELINE1) $(BASELINE2) $(BASELINE3) 
 
 # string only
@@ -149,16 +158,20 @@ $(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
 
 # exploratory clustering
 # TODO make sure unused input files for ExploreEM are truncated
+.PHONY: explore
 explore: $(UNSUPERVISED0)
 
 # unsupervised with no local context
-$(UNSUPERVISED0): $(RID_FID_WEIGHT) | $(OUTDIR)
+$(UNSUPERVISED0): $(RID_FID_WEIGHT) $(QID_RID) $(QID_EID) venv | $(OUTDIR)
 	rm -rf $(IPTDIR)/*
 	cp $(RID_FID_WEIGHT) $(DATA_X)
-	# TODO WORKAROUND
+	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	echo "1\t1" > $(DATA_Y)
 	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
-	# TODO WRITE RESULT TO unsupervised0.txt!
+	$(PYTHON) $(USLDIR)/unsupervised0.py $(ASSGN) $(QID_RID) $(QID_EID) \
+		> $(UNSUPERVISED0)
+
+# TODO SSL WITH PR AS TRAINING (SEED) DATA
 
 # ------------------------------------------------------------------------------
 
