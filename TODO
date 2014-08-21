@@ -5,3 +5,7 @@ use threshold for score in parse_score.py ?
 make sure all scripts that use ExploreEM truncate the unused input files
 sort all input (instead of just assuming that it is sorted)
 automate reporting (el_scorer and exploreEM statistics)
+use vpath directive: vpath %.py src/*; vpath %.txt data
+use .DELETE_ON_ERROR for data files
+define matlab variable MATLAB
+change non user-modifiable variables to lower case
