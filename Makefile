@@ -1,4 +1,5 @@
-# location of external sources; usually the only lines that need to be changed
+# location of external sources
+# NB these should be the only lines that need to be changed
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3
 PROPPR := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
@@ -8,6 +9,7 @@ TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
 # project directories (top-level) 
 DATDIR := data
 EXPDIR := resources/ExploreEM_package_v2
+IPTDIR := $(EXPDIR)/data
 OUTDIR := output
 RESDIR := results
 RSCDIR := resources
@@ -25,22 +27,28 @@ QID_DID_STRING_EID := $(DATDIR)/qid_did_string_eid.txt
 QID_EID := $(DATDIR)/qid_eid.txt
 QID_NAME := $(DATDIR)/queryName_qid_name.txt
 DID_TOK := $(DATDIR)/inDocument_did_tok.txt
-
 QID_EID_SCORE := $(DATDIR)/qid_eid_score.txt
 QID_RID := $(DATDIR)/qid_rid.txt
-
 DID_FEATURE := $(DATDIR)/qid_rid_did_value_weight.txt
 EID_FEATURE := $(DATDIR)/qid_rid_eid_value_weight.txt
 STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
 TOKEN_FEATURE := $(DATDIR)/qid_rid_token_value_weight.txt
-
 RID_FID_WEIGHT := $(DATDIR)/rid_fid_weight.txt
+
+# exploreEM input
+DATA_X := $(IPTDIR)/data.X.txt
+DATA_Y := $(IPTDIR)/data.Y.txt
+
+# matlab
+M_FLAGS := -nodesktop -nosplash -r
+EM_MAIN := "try, All_BIC_ExplEM_Main; catch, end, exit"
 
 # output
 BASELINE0 := $(OUTDIR)/baseline0.txt
 BASELINE1 := $(OUTDIR)/baseline1.txt
 BASELINE2 := $(OUTDIR)/baseline2.txt
 BASELINE3 := $(OUTDIR)/baseline3.txt
+UNSUPERVISED0 := $(OUTDIR)/unsupervised0.txt
 
 # ------------------------------------------------------------------------------
 
@@ -135,8 +143,22 @@ $(BASELINE2): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
 
 # string and document distance (exploratory)
 $(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
+	rm -rf $(IPTDIR)/*
 	. venv/bin/activate; python $(BASDIR)/baseline3.py \
 		$(QID_DID_STRING_EID) $(DID_TOK) $(EXPDIR)  > $(BASELINE3)
+
+# exploratory clustering
+# TODO make sure unused input files for ExploreEM are truncated
+explore: $(UNSUPERVISED0)
+
+# unsupervised with no local context
+$(UNSUPERVISED0): $(RID_FID_WEIGHT) | $(OUTDIR)
+	rm -rf $(IPTDIR)/*
+	cp $(RID_FID_WEIGHT) $(DATA_X)
+	# TODO WORKAROUND
+	echo "1\t1" > $(DATA_Y)
+	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
+	# TODO WRITE RESULT TO unsupervised0.txt!
 
 # ------------------------------------------------------------------------------
 
@@ -152,8 +174,10 @@ venv/bin/activate: $(RSCDIR)/requirements.txt
 # ------------------------------------------------------------------------------
 
 # remove data, output, and results
-# TODO include venv/ and build/ in clean?
+.PHONY: clean
 clean:
 	rm -rf $(DATDIR) $(OUTDIR) $(RESDIR)
 
-.PHONY: clean
+#.PHONY: cleandist
+#cleandist: clean
+#	rm -rf venv build
