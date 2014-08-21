@@ -2,4 +2,6 @@ should all raw input be sanitized (i.e. converted to lower case etc.)?
 create config file with clustering parameters
 do preprocessing on inQuery and inDocument (drop dummy column)
 use threshold for score in parse_score.py ?
-TODO make sure all scripts that use ExploreEM truncate the unused input files
+make sure all scripts that use ExploreEM truncate the unused input files
+sort all input (instead of just assuming that it is sorted)
+automate reporting (el_scorer and exploreEM statistics)
