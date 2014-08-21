@@ -5,21 +5,23 @@ PROPPR := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
 SCORE := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
 TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
+TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
 
 # project directories (top-level) 
 DATDIR := data
-EXPDIR := resources/ExploreEM_package_v2
+RSCDIR := resources
+EXPDIR := $(RSCDIR)/ExploreEM_package_v2
 IPTDIR := $(EXPDIR)/data
 OUTDIR := output
 RESDIR := results
-RSCDIR := resources
 SRCDIR := src
 
 # src subdirectories
+PREDIR := $(SRCDIR)/preprocessing
 BASDIR := $(SRCDIR)/baseline
+EEMDIR := $(SRCDIR)/exploratory
 SSLDIR := $(SRCDIR)/semi_supervised
 USLDIR := $(SRCDIR)/unsupervised
-PREDIR := $(SRCDIR)/preprocessing
 
 # raw input
 QID_DID := $(DATDIR)/qid_did.txt
@@ -34,6 +36,8 @@ EID_FEATURE := $(DATDIR)/qid_rid_eid_value_weight.txt
 STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
 TOKEN_FEATURE := $(DATDIR)/qid_rid_token_value_weight.txt
 RID_FID_WEIGHT := $(DATDIR)/rid_fid_weight.txt
+
+TACPR_RAW := $(DATDIR)/did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.txt
 
 # exploreEM input
 DATA_X := $(IPTDIR)/data.X.txt
@@ -55,6 +59,9 @@ BASELINE1 := $(OUTDIR)/baseline1.txt
 BASELINE2 := $(OUTDIR)/baseline2.txt
 BASELINE3 := $(OUTDIR)/baseline3.txt
 UNSUPERVISED0 := $(OUTDIR)/unsupervised0.txt
+UNSUPERVISED1 := $(OUTDIR)/unsupervised1.txt
+SEMI_SUPERVISED0 := $(OUTDIR)/semi_supervised0.txt
+SEMI_SUPERVISED1 := $(OUTDIR)/semi_supervised1.txt
 
 # ------------------------------------------------------------------------------
 
@@ -64,12 +71,13 @@ all: baseline
 
 # obtain raw input from external sources
 .PHONY: raw
-raw : $(QID_DID_STRING_EID) $(RID_FID_WEIGHT)
+raw : $(QID_DID_STRING_EID) $(RID_FID_WEIGHT) $(TACPR_RAW)
 
 $(QID_EID): | $(DATDIR)
 	cp $(PROPPR) $(QID_EID)
 
 # TODO PROBLEM: PROPPR REMOVES NAMES WITH SPECIAL CHARACTERS; POLICY?
+# (SHOULD NOT MATTER FOR EXPLORATORY VERSION -> STRING IS JUST ONE FEATURE)
 $(QID_NAME): | $(DATDIR)
 	cp $(QNAME) $(QID_NAME)
 
@@ -115,6 +123,11 @@ $(RID_FID_WEIGHT): $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) \
 		$(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) $(EID_FEATURE) \
 		> $(RID_FID_WEIGHT)
 
+# TODO PR INPUT
+$(TACPR_RAW): venv | $(DATDIR)
+	$(PYTHON) $(PREDIR)/generate_did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.py \
+		$(TACPR) > $(TACPR_RAW)
+
 # ------------------------------------------------------------------------------
 
 # create data directory
@@ -157,21 +170,34 @@ $(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
 		$(QID_DID_STRING_EID) $(DID_TOK) $(EXPDIR)  > $(BASELINE3)
 
 # exploratory clustering
-# TODO make sure unused input files for ExploreEM are truncated
 .PHONY: explore
-explore: $(UNSUPERVISED0)
+explore: $(UNSUPERVISED0) $(SEMI_SUPERVISED0)
 
-# unsupervised with no local context
+# unsupervised without local context
 $(UNSUPERVISED0): $(RID_FID_WEIGHT) $(QID_RID) $(QID_EID) venv | $(OUTDIR)
 	rm -rf $(IPTDIR)/*
 	cp $(RID_FID_WEIGHT) $(DATA_X)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	echo "1\t1" > $(DATA_Y)
 	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(USLDIR)/unsupervised0.py $(ASSGN) $(QID_RID) $(QID_EID) \
+	$(PYTHON) $(EEMDIR)/exploratory.py $(ASSGN) $(QID_RID) $(QID_EID) \
 		> $(UNSUPERVISED0)
 
-# TODO SSL WITH PR AS TRAINING (SEED) DATA
+# unsupervised with local context
+# TODO
+
+# semi-supervised without local context
+$(SEMI_SUPERVISED0): $(RID_FID_WEIGHT) $(QID_RID) $(QID_EID) venv | $(OUTDIR)
+	rm -rf $(IPTDIR)/*
+	cp $(RID_FID_WEIGHT) $(DATA_X)
+	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
+	# TODO GENERATE SEEDS FROM PR OUTPUT
+	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
+	$(PYTHON) $(EEMDIR)/exploratory.py $(ASSGN) $(QID_RID) $(QID_EID) \
+		> $(SEMI_SUPERVISED0)
+
+# semi-supervised with local context
+# TODO
 
 # ------------------------------------------------------------------------------
 
@@ -191,6 +217,6 @@ venv/bin/activate: $(RSCDIR)/requirements.txt
 clean:
 	rm -rf $(DATDIR) $(OUTDIR) $(RESDIR)
 
-#.PHONY: cleandist
-#cleandist: clean
-#	rm -rf venv build
+.PHONY: cleandist
+cleandist: clean
+	rm -rf venv build
