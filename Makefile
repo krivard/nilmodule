@@ -25,9 +25,13 @@ srcdir := src
 predir := $(srcdir)/preprocessing
 basdir := $(srcdir)/baseline
 eemdir := $(srcdir)/exploratory
-# TODO DELETE
-#SSLDIR := $(srcdir)/semi_supervised
-#USLDIR := $(srcdir)/unsupervised
+
+# ------------------------------------------------------------------------------
+# set vpath
+#vpath %.txt $(datdir)
+#vpath %.py $(srcdir)/*
+
+# ------------------------------------------------------------------------------
 
 # raw input
 # TODO remove datdir prefix and use vpath instead
@@ -91,19 +95,16 @@ all: baseline
 
 # ------------------------------------------------------------------------------
 
-# obtain raw input from external sources
 .PHONY: raw
 raw : $(qid_did_string_eid) $(rid_fid_weight) $(rid_lid_score)
 
+# prepare common input for baseline and exploreEM
 $(qid_eid): $(PROPPR) | $(datdir)
 	cp $(PROPPR) $@
 
-# TODO PROBLEM: PROPPR REMOVES NAMES WITH SPECIAL CHARACTERS; POLICY?
-# (SHOULD NOT MATTER FOR EXPLORATORY VERSION -> STRING IS JUST ONE FEATURE)
 $(qid_name): $(QNAME) | $(datdir)
 	cp $(QNAME) $@
 
-# TODO NB ORDER HAS BEEN CHANGED FROM (DID, QID) TO (QID, DID)
 $(qid_did): $(SCORE) venv | $(datdir)
 	$(PYTHON) $(predir)/parse_did.py < $(SCORE) > $@
 
@@ -114,7 +115,7 @@ $(qid_did_string_eid): $(qid_eid) $(qid_name) $(qid_did) venv | $(datdir)
 $(did_tok): $(TOKEN) | $(datdir)
 	cp $(TOKEN) $@
 
-# TODO RAW FOR USL AND SSL
+# prepare additional input for exploreEM
 $(qid_rid): venv | $(datdir)
 	$(PYTHON) $(predir)/generate_qid_rid.py $(qid_eid) > $@
 
@@ -142,7 +143,6 @@ $(rid_fid_weight): $(string_feature) $(did_feature) $(token_feature) \
 	$(PYTHON) $(predir)/generate_rid_fid_weight.py \
 		$(string_feature) $(did_feature) $(token_feature) $(eid_feature) > $@
 
-# TODO PR INPUT
 $(tacpr_raw): venv | $(datdir)
 	$(PYTHON) $(predir)/generate_did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.py \
 		$(TACPR) > $@
@@ -153,12 +153,10 @@ $(qid_tacid): $(tacpr_raw) $(qid_name) venv | $(datdir)
 $(rid_lid_score): $(qid_tacid) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(predir)/generate_rid_lid_score.py $(qid_tacid) $(qid_rid) > $@
 
-# TODO GOLD PREPROCESSING
-# use goldstandard and truncate it to smallest common subset
+# prepare input for scorer
 $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
-#$(gold_qid_eid): $(GOLD) $(qid_name) venv | $(datdir)
+	# TODO use goldstandard and truncate it to smallest common subset
 	$(PYTHON) $(predir)/generate_gold_qid_eid.py $(GOLD) $(baseline0) > $@
-	#$(PYTHON) $(predir)/generate_gold_qid_eid.py $(GOLD) $(qid_name) > $@
 
 # ------------------------------------------------------------------------------
 
@@ -222,7 +220,7 @@ $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_lid_score) $(seeds_Y)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	cp $(rid_lid_score) $(data_Y)
-	# TODO GENERATE seeds FROM PR OUTPUT
+	# TODO GENERATE SEEDS FROM PR OUTPUT
 	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(eemdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 

@@ -9,3 +9,5 @@ use vpath directive: vpath %.py src/*; vpath %.txt data
 use .DELETE_ON_ERROR for data files
 define matlab variable MATLAB
 change non user-modifiable variables to lower case
+# TODO PROBLEM: PROPPR REMOVES NAMES WITH SPECIAL CHARACTERS; POLICY?
+# (SHOULD NOT MATTER FOR EXPLORATORY VERSION -> STRING IS JUST ONE FEATURE)
