@@ -1,5 +1,8 @@
-# location of external sources
-# NB these should be the only lines that need to be changed
+################################################################################
+#                 MAKEFILE NILCLUSTERING MODULE TAC/KBP 2014                   #
+################################################################################
+
+# external data (NB these should be the only lines that need to be changed)
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3
 PROPPR := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
@@ -20,32 +23,31 @@ resdir := results
 srcdir := src
 
 # ------------------------------------------------------------------------------
-# set vpath
-#vpath %.txt $(datdir)
-#vpath %.py $(srcdir)
 
-# ------------------------------------------------------------------------------
-
-# raw input
+# baseline and exploreEM input
 qid_did := $(datdir)/qid_did.txt
-qid_did_string_eid := $(datdir)/qid_did_string_eid.txt
 qid_eid := $(datdir)/qid_eid.txt
 qid_name := $(datdir)/queryName_qid_name.txt
 did_tok := $(datdir)/inDocument_did_tok.txt
-qid_eid_score := $(datdir)/qid_eid_score.txt
+qid_did_string_eid := $(datdir)/qid_did_string_eid.txt
+
+# additional exploreEM input
 qid_rid := $(datdir)/qid_rid.txt
+qid_eid_score := $(datdir)/qid_eid_score.txt
 did_feature := $(datdir)/qid_rid_did_value_weight.txt
 eid_feature := $(datdir)/qid_rid_eid_value_weight.txt
 string_feature := $(datdir)/qid_rid_string_value_weight.txt
 token_feature := $(datdir)/qid_rid_token_value_weight.txt
 rid_fid_weight := $(datdir)/rid_fid_weight.txt
-tacpr_raw := $(datdir)/did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.txt
+
+# additional exploreEM input (PageReactor)
 qid_tacid := $(datdir)/qid_tacid.txt
+tacpr_raw := $(datdir)/did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.txt
 rid_lid_score := $(datdir)/rid_lid_score.txt
 
 # ------------------------------------------------------------------------------
 
-# exploreEM
+# exploreEM input and main script
 data_X := $(iptdir)/data.X.txt
 data_Y := $(iptdir)/data.Y.txt
 seeds_Y := $(iptdir)/seeds.Y.txt
@@ -53,7 +55,7 @@ assgn := $(iptdir)/KM*explore*.assgn.txt
 
 # ------------------------------------------------------------------------------
 
-# output
+# output files
 baseline0 := $(outdir)/baseline0.txt
 baseline1 := $(outdir)/baseline1.txt
 baseline2 := $(outdir)/baseline2.txt
@@ -65,7 +67,7 @@ semi_supervised1 := $(outdir)/semi_supervised1.txt
 
 # ------------------------------------------------------------------------------
 
-# results
+# evaluation input and results
 gold_qid_eid := $(datdir)/gold_qid_eid.txt
 results := $(resdir)/results.txt
 
@@ -83,14 +85,18 @@ SCORER := $(rscdir)/el_scorer.py
 
 # ==============================================================================
 
-all: baseline
+# perform baseline and exploratory clustering (output will not be evaluated)
+all: baseline explore
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
+# generate all input
 .PHONY: raw
 raw : $(qid_did_string_eid) $(rid_fid_weight) $(rid_lid_score)
 
-# prepare common input for baseline and exploreEM
+# ------------------------------------------------------------------------------
+
+# generate common input for baseline and exploreEM
 $(qid_eid): $(PROPPR) | $(datdir)
 	cp $(PROPPR) $@
 
@@ -107,7 +113,9 @@ $(qid_did_string_eid): $(qid_eid) $(qid_name) $(qid_did) venv | $(datdir)
 $(did_tok): $(TOKEN) | $(datdir)
 	cp $(TOKEN) $@
 
-# prepare additional input for exploreEM
+# ------------------------------------------------------------------------------
+
+# generate additional input for exploreEM
 $(qid_rid): venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid.py $(qid_eid) > $@
 
@@ -135,6 +143,9 @@ $(rid_fid_weight): $(string_feature) $(did_feature) $(token_feature) \
 	$(PYTHON) $(srcdir)/generate_rid_fid_weight.py \
 		$(string_feature) $(did_feature) $(token_feature) $(eid_feature) > $@
 
+# ------------------------------------------------------------------------------
+
+# generate additional input for exploreEM (PageReactor)
 $(tacpr_raw): venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.py \
 		$(TACPR) > $@
@@ -145,26 +156,14 @@ $(qid_tacid): $(tacpr_raw) $(qid_name) venv | $(datdir)
 $(rid_lid_score): $(qid_tacid) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_rid_lid_score.py $(qid_tacid) $(qid_rid) > $@
 
+# ------------------------------------------------------------------------------
+
 # prepare input for scorer
 $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 	# TODO WORKAROUND: TRUNCATE GOLDSTANDARD TO SMALLEST COMMON SUBSET
 	$(PYTHON) $(srcdir)/generate_gold_qid_eid.py $(GOLD) $(baseline0) > $@
 
-# ------------------------------------------------------------------------------
-
-# create data directory
-$(datdir):
-	mkdir $@
-
-# create output directory
-$(outdir):
-	mkdir $@
-
-# create results directory
-$(resdir):
-	mkdir $@
-
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
 # baseline clustering
 .PHONY: baseline
@@ -188,6 +187,8 @@ $(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
 	$(PYTHON) $(srcdir)/baseline3.py \
 		$(qid_did_string_eid) $(did_tok) $(expdir)  > $@
 
+# ------------------------------------------------------------------------------
+
 # exploratory clustering
 .PHONY: explore
 explore: $(unsupervised0) $(semi_supervised0)
@@ -201,8 +202,14 @@ $(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
-# unsupervised with local context
-# TODO
+# unsupervised with local context only (i.e., no document-level token feature)
+$(unsupervised1): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
+	rm -rf $(iptdir)/*
+	cp $(rid_fid_weight) $(data_X)
+	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
+	echo "1\t1" > $(data_Y)
+	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised without local context
 $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
@@ -219,7 +226,15 @@ $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 # semi-supervised with local context
 # TODO
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
+
+# evaluate output
+evaluation : $(results)
+
+$(results): $(gold_qid_eid) venv | $(resdir)
+	$(PYTHON) $(SCORER) $(gold_qid_eid) $(outdir) > $@
+
+# ==============================================================================
 
 # create virtualenv
 venv: venv/bin/activate
@@ -230,15 +245,21 @@ venv/bin/activate: $(rscdir)/requirements.txt
 	. $@; pip install -Ur $(rscdir)/requirements.txt
 	touch $@
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
-# results
-result : $(results)
+# create data directory
+$(datdir):
+	mkdir $@
 
-$(results): $(gold_qid_eid) venv | $(resdir)
-	$(PYTHON) $(SCORER) $(gold_qid_eid) $(outdir) > $@
+# create output directory
+$(outdir):
+	mkdir $@
 
-# ------------------------------------------------------------------------------
+# create results directory
+$(resdir):
+	mkdir $@
+
+# ==============================================================================
 
 # remove data, output, and results
 .PHONY: clean
