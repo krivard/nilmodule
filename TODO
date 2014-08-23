@@ -1,4 +1,5 @@
-should all raw input be sanitized (i.e. converted to lower case etc.)?
+should all raw input be sanitized (i.e. converted to lower case etc.)? YES
+
 create config file with clustering parameters
 do preprocessing on inQuery and inDocument (drop dummy column)
 use threshold for score in parse_score.py ?
@@ -9,3 +10,6 @@ use vpath directive: vpath %.py src/*; vpath %.txt data
 use .DELETE_ON_ERROR for data files
 problem: proppr removes names with special characters (should not matter for 
 exploratory version -> string is just one feature)
+
+prepare baseline5: clustering per string with sentence distance instead of 
+doc distance

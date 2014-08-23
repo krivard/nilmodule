@@ -8,6 +8,8 @@ PROPPR := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
 SCORE := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
 TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
+QSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/querySentence_qid_sid.cfacts
+INSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/inSentence_sid_tok.cfacts
 TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
 GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB_links.tab
 
@@ -28,6 +30,7 @@ srcdir := src
 qid_did := $(datdir)/qid_did.txt
 qid_eid := $(datdir)/qid_eid.txt
 qid_name := $(datdir)/queryName_qid_name.txt
+qid_sid := $(datdir)/querySentence_qid_sid.txt
 did_tok := $(datdir)/inDocument_did_tok.txt
 qid_did_string_eid := $(datdir)/qid_did_string_eid.txt
 
@@ -38,6 +41,7 @@ did_feature := $(datdir)/qid_rid_did_value_weight.txt
 eid_feature := $(datdir)/qid_rid_eid_value_weight.txt
 string_feature := $(datdir)/qid_rid_string_value_weight.txt
 token_feature := $(datdir)/qid_rid_token_value_weight.txt
+sid_feature := $(datdir)/qid_rid_sid_value_weight.txt
 rid_fid_weight := $(datdir)/rid_fid_weight.txt
 
 # additional exploreEM input (PageReactor)
@@ -92,7 +96,7 @@ all: baseline explore
 
 # generate all input
 .PHONY: raw
-raw : $(qid_did_string_eid) $(rid_fid_weight) $(rid_lid_score)
+raw : $(qid_did_string_eid) $(rid_fid_weight) $(rid_lid_score) $(sid_feature)
 
 # ------------------------------------------------------------------------------
 
@@ -102,6 +106,9 @@ $(qid_eid): $(PROPPR) | $(datdir)
 
 $(qid_name): $(QNAME) | $(datdir)
 	cp $(QNAME) $@
+
+$(qid_sid): $(QSENT) | $(datdir)
+	cp $(QSENT) $@
 
 $(qid_did): $(SCORE) venv | $(datdir)
 	$(PYTHON) $(srcdir)/parse_did.py < $(SCORE) > $@
@@ -129,6 +136,10 @@ $(string_feature): $(qid_name) $(qid_rid) venv | $(datdir)
 $(did_feature): $(qid_did) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid_did_value_weight.py \
 		$(qid_did) $(qid_rid) > $@
+
+$(sid_feature): $(qid_sid) $(qid_rid) venv | $(datdir)
+	$(PYTHON) $(srcdir)/generate_qid_rid_sid_value_weight.py \
+		$(qid_sid) $(qid_rid) > $@
 
 $(token_feature): $(did_tok) $(did_feature) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid_term_value_weight.py \
