@@ -11,67 +11,67 @@ GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB
 # ==============================================================================
 
 # project directories
-DATDIR := data
-RSCDIR := resources
-EXPDIR := $(RSCDIR)/ExploreEM_package_v2
-IPTDIR := $(EXPDIR)/data
-OUTDIR := output
-RESDIR := results
-SRCDIR := src
+datdir := data
+rscdir := resources
+expdir := $(rscdir)/ExploreEM_package_v2
+iptdir := $(expdir)/data
+outdir := output
+resdir := results
+srcdir := src
 
 # src subdirectories
-# TODO move all scripts into src and remove subdirs? If yes, then use vpath
-# instead of SRCDIR prefix
-PREDIR := $(SRCDIR)/preprocessing
-BASDIR := $(SRCDIR)/baseline
-EEMDIR := $(SRCDIR)/exploratory
+# TODO move all scripts into src and remove subdirs? 
+# If yes, then use vpath instead of srcdir prefix
+predir := $(srcdir)/preprocessing
+basdir := $(srcdir)/baseline
+eemdir := $(srcdir)/exploratory
 # TODO DELETE
-#SSLDIR := $(SRCDIR)/semi_supervised
-#USLDIR := $(SRCDIR)/unsupervised
+#SSLDIR := $(srcdir)/semi_supervised
+#USLDIR := $(srcdir)/unsupervised
 
 # raw input
-# TODO remove DATDIR prefix and use vpath instead
-QID_DID := $(DATDIR)/qid_did.txt
-QID_DID_STRING_EID := $(DATDIR)/qid_did_string_eid.txt
-QID_EID := $(DATDIR)/qid_eid.txt
-QID_NAME := $(DATDIR)/queryName_qid_name.txt
-DID_TOK := $(DATDIR)/inDocument_did_tok.txt
-QID_EID_SCORE := $(DATDIR)/qid_eid_score.txt
-QID_RID := $(DATDIR)/qid_rid.txt
-DID_FEATURE := $(DATDIR)/qid_rid_did_value_weight.txt
-EID_FEATURE := $(DATDIR)/qid_rid_eid_value_weight.txt
-STRING_FEATURE := $(DATDIR)/qid_rid_string_value_weight.txt
-TOKEN_FEATURE := $(DATDIR)/qid_rid_token_value_weight.txt
-RID_FID_WEIGHT := $(DATDIR)/rid_fid_weight.txt
-TACPR_RAW := $(DATDIR)/did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.txt
-QID_TACID := $(DATDIR)/qid_tacid.txt
-RID_LID_SCORE := $(DATDIR)/rid_lid_score.txt
+# TODO remove datdir prefix and use vpath instead
+qid_did := $(datdir)/qid_did.txt
+qid_did_string_eid := $(datdir)/qid_did_string_eid.txt
+qid_eid := $(datdir)/qid_eid.txt
+qid_name := $(datdir)/queryName_qid_name.txt
+did_tok := $(datdir)/inDocument_did_tok.txt
+qid_eid_score := $(datdir)/qid_eid_score.txt
+qid_rid := $(datdir)/qid_rid.txt
+did_feature := $(datdir)/qid_rid_did_value_weight.txt
+eid_feature := $(datdir)/qid_rid_eid_value_weight.txt
+string_feature := $(datdir)/qid_rid_string_value_weight.txt
+token_feature := $(datdir)/qid_rid_token_value_weight.txt
+rid_fid_weight := $(datdir)/rid_fid_weight.txt
+tacpr_raw := $(datdir)/did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.txt
+qid_tacid := $(datdir)/qid_tacid.txt
+rid_lid_score := $(datdir)/rid_lid_score.txt
 
 # ------------------------------------------------------------------------------
 
 # exploreEM
-DATA_X := $(IPTDIR)/data.X.txt
-DATA_Y := $(IPTDIR)/data.Y.txt
-SEEDS_Y := $(IPTDIR)/seeds.Y.txt
-ASSGN := $(IPTDIR)/KM*explore*.assgn.txt
+data_X := $(iptdir)/data.X.txt
+data_Y := $(iptdir)/data.Y.txt
+seeds_Y := $(iptdir)/seeds.Y.txt
+assgn := $(iptdir)/KM*explore*.assgn.txt
 
 # ------------------------------------------------------------------------------
 
 # output
-BASELINE0 := $(OUTDIR)/baseline0.txt
-BASELINE1 := $(OUTDIR)/baseline1.txt
-BASELINE2 := $(OUTDIR)/baseline2.txt
-BASELINE3 := $(OUTDIR)/baseline3.txt
-UNSUPERVISED0 := $(OUTDIR)/unsupervised0.txt
-UNSUPERVISED1 := $(OUTDIR)/unsupervised1.txt
-SEMI_SUPERVISED0 := $(OUTDIR)/semi_supervised0.txt
-SEMI_SUPERVISED1 := $(OUTDIR)/semi_supervised1.txt
+baseline0 := $(outdir)/baseline0.txt
+baseline1 := $(outdir)/baseline1.txt
+baseline2 := $(outdir)/baseline2.txt
+baseline3 := $(outdir)/baseline3.txt
+unsupervised0 := $(outdir)/unsupervised0.txt
+unsupervised1 := $(outdir)/unsupervised1.txt
+semi_supervised0 := $(outdir)/semi_supervised0.txt
+semi_supervised1 := $(outdir)/semi_supervised1.txt
 
 # ------------------------------------------------------------------------------
 
 # results
-GOLD_QID_EID := $(DATDIR)/gold_qid_eid.txt
-RESULTS := $(RESDIR)/results.txt
+gold_qid_eid := $(datdir)/gold_qid_eid.txt
+results := $(resdir)/results.txt
 
 # ------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ M_FLAGS := -nodesktop -nosplash -r
 EM_MAIN := "try, All_BIC_ExplEM_Main; catch, end, exit"
 
 # scorer
-SCORER := $(RSCDIR)/el_scorer.py
+SCORER := $(rscdir)/el_scorer.py
 
 # ==============================================================================
 
@@ -93,137 +93,138 @@ all: baseline
 
 # obtain raw input from external sources
 .PHONY: raw
-raw : $(QID_DID_STRING_EID) $(RID_FID_WEIGHT) $(RID_LID_SCORE)
+raw : $(qid_did_string_eid) $(rid_fid_weight) $(rid_lid_score)
 
-$(QID_EID): $(PROPPR) | $(DATDIR)
+$(qid_eid): $(PROPPR) | $(datdir)
 	cp $(PROPPR) $@
 
 # TODO PROBLEM: PROPPR REMOVES NAMES WITH SPECIAL CHARACTERS; POLICY?
 # (SHOULD NOT MATTER FOR EXPLORATORY VERSION -> STRING IS JUST ONE FEATURE)
-$(QID_NAME): $(QNAME) | $(DATDIR)
+$(qid_name): $(QNAME) | $(datdir)
 	cp $(QNAME) $@
 
 # TODO NB ORDER HAS BEEN CHANGED FROM (DID, QID) TO (QID, DID)
-$(QID_DID): $(SCORE) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/parse_did.py < $(SCORE) > $@
+$(qid_did): $(SCORE) venv | $(datdir)
+	$(PYTHON) $(predir)/parse_did.py < $(SCORE) > $@
 
-$(QID_DID_STRING_EID): $(QID_EID) $(QID_NAME) $(QID_DID) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_qid_did_string_eid.py \
-		$(QID_EID) $(QID_NAME) $(QID_DID) > $@
+$(qid_did_string_eid): $(qid_eid) $(qid_name) $(qid_did) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_qid_did_string_eid.py \
+		$(qid_eid) $(qid_name) $(qid_did) > $@
 
-$(DID_TOK): $(TOKEN) | $(DATDIR)
+$(did_tok): $(TOKEN) | $(datdir)
 	cp $(TOKEN) $@
 
 # TODO RAW FOR USL AND SSL
-$(QID_RID): venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_qid_rid.py $(QID_EID) > $@
+$(qid_rid): venv | $(datdir)
+	$(PYTHON) $(predir)/generate_qid_rid.py $(qid_eid) > $@
 
-$(QID_EID_SCORE): $(SCORE) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/parse_score.py < $(SCORE) > $@
+$(qid_eid_score): $(SCORE) venv | $(datdir)
+	$(PYTHON) $(predir)/parse_score.py < $(SCORE) > $@
 
-$(STRING_FEATURE): $(QID_NAME) $(QID_RID) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_qid_rid_string_value_weight.py \
-		$(QID_NAME) $(QID_RID) > $@
+$(string_feature): $(qid_name) $(qid_rid) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_qid_rid_string_value_weight.py \
+		$(qid_name) $(qid_rid) > $@
 
-$(DID_FEATURE): $(QID_DID) $(QID_RID) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_qid_rid_did_value_weight.py \
-		$(QID_DID) $(QID_RID) > $@
+$(did_feature): $(qid_did) $(qid_rid) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_qid_rid_did_value_weight.py \
+		$(qid_did) $(qid_rid) > $@
 
-$(TOKEN_FEATURE): $(DID_TOK) $(DID_FEATURE) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_qid_rid_term_value_weight.py \
-		$(DID_TOK) $(DID_FEATURE) > $@
+$(token_feature): $(did_tok) $(did_feature) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_qid_rid_term_value_weight.py \
+		$(did_tok) $(did_feature) > $@
 
-$(EID_FEATURE): $(QID_EID_SCORE) $(QID_RID) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_qid_rid_eid_value_weight.py \
-		$(QID_EID_SCORE) $(QID_RID) > $@
+$(eid_feature): $(qid_eid_score) $(qid_rid) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_qid_rid_eid_value_weight.py \
+		$(qid_eid_score) $(qid_rid) > $@
 
-$(RID_FID_WEIGHT): $(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) \
-		$(EID_FEATURE) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_rid_fid_weight.py \
-		$(STRING_FEATURE) $(DID_FEATURE) $(TOKEN_FEATURE) $(EID_FEATURE) > $@
+$(rid_fid_weight): $(string_feature) $(did_feature) $(token_feature) \
+		$(eid_feature) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_rid_fid_weight.py \
+		$(string_feature) $(did_feature) $(token_feature) $(eid_feature) > $@
 
 # TODO PR INPUT
-$(TACPR_RAW): venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.py \
+$(tacpr_raw): venv | $(datdir)
+	$(PYTHON) $(predir)/generate_did_wp14_type_score_begin_end_mention_tacid_tacname_tactype.py \
 		$(TACPR) > $@
 
-$(QID_TACID): $(TACPR_RAW) $(QID_NAME) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_qid_tacid.py $(TACPR_RAW) $(QID_NAME) > $@
+$(qid_tacid): $(tacpr_raw) $(qid_name) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_qid_tacid.py $(tacpr_raw) $(qid_name) > $@
 
-$(RID_LID_SCORE): $(QID_TACID) $(QID_RID) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_rid_lid_score.py $(QID_TACID) $(QID_RID) > $@
+$(rid_lid_score): $(qid_tacid) $(qid_rid) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_rid_lid_score.py $(qid_tacid) $(qid_rid) > $@
 
 # TODO GOLD PREPROCESSING
-#$(GOLD_QID_EID): $(GOLD) $(QID_NAME) venv | $(DATDIR)
-$(GOLD_QID_EID): $(GOLD) $(BASELINE0) venv | $(DATDIR)
-	$(PYTHON) $(PREDIR)/generate_gold_qid_eid.py $(GOLD) $(BASELINE0) > $@
-	#$(PYTHON) $(PREDIR)/generate_gold_qid_eid.py $(GOLD) $(QID_NAME) > $@
+# use goldstandard and truncate it to smallest common subset
+$(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
+#$(gold_qid_eid): $(GOLD) $(qid_name) venv | $(datdir)
+	$(PYTHON) $(predir)/generate_gold_qid_eid.py $(GOLD) $(baseline0) > $@
+	#$(PYTHON) $(predir)/generate_gold_qid_eid.py $(GOLD) $(qid_name) > $@
 
 # ------------------------------------------------------------------------------
 
 # create data directory
-$(DATDIR):
+$(datdir):
 	mkdir $@
 
 # create output directory
-$(OUTDIR):
+$(outdir):
 	mkdir $@
 
 # create results directory
-$(RESDIR):
+$(resdir):
 	mkdir $@
 
 # ------------------------------------------------------------------------------
 
 # baseline clustering
 .PHONY: baseline
-baseline: $(BASELINE0) $(BASELINE1) $(BASELINE2) $(BASELINE3) 
+baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) 
 
 # string only
-$(BASELINE0): $(QID_DID_STRING_EID) venv | $(OUTDIR)
-	$(PYTHON) $(BASDIR)/baseline0.py $(QID_DID_STRING_EID) > $@
+$(baseline0): $(qid_did_string_eid) venv | $(outdir)
+	$(PYTHON) $(basdir)/baseline0.py $(qid_did_string_eid) > $@
 
 # string and did
-$(BASELINE1): $(QID_DID_STRING_EID) venv | $(OUTDIR)
-	$(PYTHON) $(BASDIR)/baseline1.py $(QID_DID_STRING_EID) > $@
+$(baseline1): $(qid_did_string_eid) venv | $(outdir)
+	$(PYTHON) $(basdir)/baseline1.py $(qid_did_string_eid) > $@
 
 # string and document distance (agglomerative)
-$(BASELINE2): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
-	$(PYTHON) $(BASDIR)/baseline2.py $(QID_DID_STRING_EID) $(DID_TOK)  > $@
+$(baseline2): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
+	$(PYTHON) $(basdir)/baseline2.py $(qid_did_string_eid) $(did_tok)  > $@
 
 # string and document distance (exploratory)
-$(BASELINE3): $(QID_DID_STRING_EID) $(DID_TOK) venv | $(OUTDIR)
-	rm -rf $(IPTDIR)/*
-	$(PYTHON) $(BASDIR)/baseline3.py \
-		$(QID_DID_STRING_EID) $(DID_TOK) $(EXPDIR)  > $@
+$(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
+	rm -rf $(iptdir)/*
+	$(PYTHON) $(basdir)/baseline3.py \
+		$(qid_did_string_eid) $(did_tok) $(expdir)  > $@
 
 # exploratory clustering
 .PHONY: explore
-explore: $(UNSUPERVISED0) $(SEMI_SUPERVISED0)
+explore: $(unsupervised0) $(semi_supervised0)
 
 # unsupervised without local context
-$(UNSUPERVISED0): $(RID_FID_WEIGHT) $(QID_RID) $(QID_EID) venv | $(OUTDIR)
-	rm -rf $(IPTDIR)/*
-	cp $(RID_FID_WEIGHT) $(DATA_X)
+$(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
+	rm -rf $(iptdir)/*
+	cp $(rid_fid_weight) $(data_X)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
-	echo "1\t1" > $(DATA_Y)
-	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(EEMDIR)/exploratory.py $(ASSGN) $(QID_RID) $(QID_EID) > $@
+	echo "1\t1" > $(data_Y)
+	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
+	$(PYTHON) $(eemdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
 # unsupervised with local context
 # TODO
 
 # semi-supervised without local context
-$(SEMI_SUPERVISED0): $(RID_FID_WEIGHT) $(RID_LID_SCORE) $(QID_RID) \
-		$(QID_EID) venv | $(OUTDIR)
-	rm -rf $(IPTDIR)/*
-	cp $(RID_FID_WEIGHT) $(DATA_X)
-	cp $(RID_LID_SCORE) $(SEEDS_Y)
+$(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
+		$(qid_eid) venv | $(outdir)
+	rm -rf $(iptdir)/*
+	cp $(rid_fid_weight) $(data_X)
+	cp $(rid_lid_score) $(seeds_Y)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
-	cp $(RID_LID_SCORE) $(DATA_Y)
-	# TODO GENERATE SEEDS FROM PR OUTPUT
+	cp $(rid_lid_score) $(data_Y)
+	# TODO GENERATE seeds FROM PR OUTPUT
 	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(EEMDIR)/exploratory.py $(ASSGN) $(QID_RID) $(QID_EID) > $@
+	$(PYTHON) $(eemdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised with local context
 # TODO
@@ -234,27 +235,27 @@ $(SEMI_SUPERVISED0): $(RID_FID_WEIGHT) $(RID_LID_SCORE) $(QID_RID) \
 venv: venv/bin/activate
 
 # activate virtualenv
-venv/bin/activate: $(RSCDIR)/requirements.txt
+venv/bin/activate: $(rscdir)/requirements.txt
 	test -d venv || virtualenv venv
-	. $@; pip install -Ur $(RSCDIR)/requirements.txt
+	. $@; pip install -Ur $(rscdir)/requirements.txt
 	touch $@
 
 # ------------------------------------------------------------------------------
 
 # results
-result : $(RESULTS)
-# TODO use goldstandard and truncate it to smallest common subset
-# use output folder as system_out_dir
-$(RESULTS): $(GOLD_QID_EID) venv | $(RESDIR)
-	$(PYTHON) $(SCORER) $(GOLD_QID_EID) $(OUTDIR) > $@
+result : $(results)
+
+$(results): $(gold_qid_eid) venv | $(resdir)
+	$(PYTHON) $(SCORER) $(gold_qid_eid) $(outdir) > $@
 
 # ------------------------------------------------------------------------------
 
 # remove data, output, and results
 .PHONY: clean
 clean:
-	rm -rf $(DATDIR) $(OUTDIR) $(RESDIR)
+	rm -rf $(datdir) $(outdir) $(resdir)
 
+# remove virtualenv
 .PHONY: cleandist
 cleandist: clean
 	rm -rf venv build
