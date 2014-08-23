@@ -6,10 +6,11 @@ QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
 SCORE := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
 TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
 TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
+GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB_links.tab
 
 # ==============================================================================
 
-# project directories (top-level) 
+# project directories
 DATDIR := data
 RSCDIR := resources
 EXPDIR := $(RSCDIR)/ExploreEM_package_v2
@@ -19,6 +20,8 @@ RESDIR := results
 SRCDIR := src
 
 # src subdirectories
+# TODO move all scripts into src and remove subdirs? If yes, then use vpath
+# instead of SRCDIR prefix
 PREDIR := $(SRCDIR)/preprocessing
 BASDIR := $(SRCDIR)/baseline
 EEMDIR := $(SRCDIR)/exploratory
@@ -27,6 +30,7 @@ EEMDIR := $(SRCDIR)/exploratory
 #USLDIR := $(SRCDIR)/unsupervised
 
 # raw input
+# TODO remove DATDIR prefix and use vpath instead
 QID_DID := $(DATDIR)/qid_did.txt
 QID_DID_STRING_EID := $(DATDIR)/qid_did_string_eid.txt
 QID_EID := $(DATDIR)/qid_eid.txt
@@ -65,12 +69,21 @@ SEMI_SUPERVISED1 := $(OUTDIR)/semi_supervised1.txt
 
 # ------------------------------------------------------------------------------
 
+# results
+GOLD_QID_EID := $(DATDIR)/gold_qid_eid.txt
+RESULTS := $(RESDIR)/results.txt
+
+# ------------------------------------------------------------------------------
+
 # python
 PYTHON := . venv/bin/activate; python
 
 # matlab
 M_FLAGS := -nodesktop -nosplash -r
 EM_MAIN := "try, All_BIC_ExplEM_Main; catch, end, exit"
+
+# scorer
+SCORER := $(RSCDIR)/el_scorer.py
 
 # ==============================================================================
 
@@ -82,12 +95,12 @@ all: baseline
 .PHONY: raw
 raw : $(QID_DID_STRING_EID) $(RID_FID_WEIGHT) $(RID_LID_SCORE)
 
-$(QID_EID): | $(DATDIR)
+$(QID_EID): $(PROPPR) | $(DATDIR)
 	cp $(PROPPR) $@
 
 # TODO PROBLEM: PROPPR REMOVES NAMES WITH SPECIAL CHARACTERS; POLICY?
 # (SHOULD NOT MATTER FOR EXPLORATORY VERSION -> STRING IS JUST ONE FEATURE)
-$(QID_NAME): | $(DATDIR)
+$(QID_NAME): $(QNAME) | $(DATDIR)
 	cp $(QNAME) $@
 
 # TODO NB ORDER HAS BEEN CHANGED FROM (DID, QID) TO (QID, DID)
@@ -98,7 +111,7 @@ $(QID_DID_STRING_EID): $(QID_EID) $(QID_NAME) $(QID_DID) venv | $(DATDIR)
 	$(PYTHON) $(PREDIR)/generate_qid_did_string_eid.py \
 		$(QID_EID) $(QID_NAME) $(QID_DID) > $@
 
-$(DID_TOK): | $(DATDIR)
+$(DID_TOK): $(TOKEN) | $(DATDIR)
 	cp $(TOKEN) $@
 
 # TODO RAW FOR USL AND SSL
@@ -137,12 +150,14 @@ $(TACPR_RAW): venv | $(DATDIR)
 $(QID_TACID): $(TACPR_RAW) $(QID_NAME) venv | $(DATDIR)
 	$(PYTHON) $(PREDIR)/generate_qid_tacid.py $(TACPR_RAW) $(QID_NAME) > $@
 
-#$(QID_LID): $(QID_TACID) $(QID_RID) venv | $(DATDIR)
-#	$(PYTHON) $(PREDIR)/generate_rid_lid_score.py $(QID_TACID) $(QID_RID) \
-#		> $(QID_LID)
-
 $(RID_LID_SCORE): $(QID_TACID) $(QID_RID) venv | $(DATDIR)
 	$(PYTHON) $(PREDIR)/generate_rid_lid_score.py $(QID_TACID) $(QID_RID) > $@
+
+# TODO GOLD PREPROCESSING
+#$(GOLD_QID_EID): $(GOLD) $(QID_NAME) venv | $(DATDIR)
+$(GOLD_QID_EID): $(GOLD) $(BASELINE0) venv | $(DATDIR)
+	$(PYTHON) $(PREDIR)/generate_gold_qid_eid.py $(GOLD) $(BASELINE0) > $@
+	#$(PYTHON) $(PREDIR)/generate_gold_qid_eid.py $(GOLD) $(QID_NAME) > $@
 
 # ------------------------------------------------------------------------------
 
@@ -223,6 +238,15 @@ venv/bin/activate: $(RSCDIR)/requirements.txt
 	test -d venv || virtualenv venv
 	. $@; pip install -Ur $(RSCDIR)/requirements.txt
 	touch $@
+
+# ------------------------------------------------------------------------------
+
+# results
+result : $(RESULTS)
+# TODO use goldstandard and truncate it to smallest common subset
+# use output folder as system_out_dir
+$(RESULTS): $(GOLD_QID_EID) venv | $(RESDIR)
+	$(PYTHON) $(SCORER) $(GOLD_QID_EID) $(OUTDIR) > $@
 
 # ------------------------------------------------------------------------------
 

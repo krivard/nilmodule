@@ -9,11 +9,11 @@ import sys
 # Parse path to input files
 parser = argparse.ArgumentParser()
 parser.add_argument('TACPR_RAW')
-parser.add_argument('QID_NAME')
+#parser.add_argument('QID_NAME')
 
 args = parser.parse_args()
 TACPR_RAW = args.TACPR_RAW
-QID_NAME = args.QID_NAME
+#QID_NAME = args.QID_NAME
 
 df1 = pd.read_table(QID_NAME, header=None, names=['queryName', 'qid', 'name'])
 df2 = pd.read_table(TACPR_RAW, header=None, names=['did', 'wp14', 'type', 
