@@ -59,9 +59,7 @@ rid_lid_score := $(datdir)/rid_lid_score.txt
 data_X := $(iptdir)/data.X.txt
 data_Y := $(iptdir)/data.Y.txt
 seeds_Y := $(iptdir)/seeds.Y.txt
-# TODO HOW TO DO GLOBBIGN?
 assgn_suffix := $(iptdir)/*assgn.txt
-#assgn := $(iptdir)/KM*explore*.assgn.txt
 
 # ------------------------------------------------------------------------------
 
@@ -266,10 +264,9 @@ $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
-	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	cp $(rid_lid_score) $(data_Y)
 	# TODO GENERATE SEEDS FROM PR OUTPUT
-	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
+	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised with local context
@@ -278,10 +275,9 @@ $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight_local) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
-	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	cp $(rid_lid_score) $(data_Y)
 	# TODO GENERATE SEEDS FROM PR OUTPUT
-	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
+	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # ==============================================================================

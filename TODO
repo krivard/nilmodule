@@ -4,6 +4,7 @@ matlab hook
 
 should all raw input be sanitized (i.e. converted to lower case etc.)? YES
 change "term" to "token"
+make sur nid start with 001 and not 000
 
 do preprocessing on inQuery and inDocument (drop dummy column)
 use threshold for score in parse_score.py ?
