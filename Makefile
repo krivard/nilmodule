@@ -248,7 +248,7 @@ $(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py `echo $(assgn_suffix)` $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # unsupervised with local context only (i.e., no document-level token feature)
 $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
@@ -258,7 +258,7 @@ $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py `echo $(assgn_suffix)` $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised without local context
 $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
@@ -270,7 +270,7 @@ $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_lid_score) $(data_Y)
 	# TODO GENERATE SEEDS FROM PR OUTPUT
 	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py `echo $(assgn_suffix)` $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised with local context
 $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
@@ -282,7 +282,7 @@ $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_lid_score) $(data_Y)
 	# TODO GENERATE SEEDS FROM PR OUTPUT
 	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py `echo $(assgn_suffix)` $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # ==============================================================================
 
