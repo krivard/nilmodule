@@ -60,7 +60,7 @@ data_X := $(iptdir)/data.X.txt
 data_Y := $(iptdir)/data.Y.txt
 seeds_Y := $(iptdir)/seeds.Y.txt
 # TODO HOW TO DO GLOBBIGN?
-assgn = $(iptdir)/*.assgn.txt
+assgn = $(iptdir)/$(shell echo *.assgn.txt)
 #assgn := $(iptdir)/KM*explore*.assgn.txt
 
 # ------------------------------------------------------------------------------
