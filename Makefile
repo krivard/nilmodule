@@ -217,7 +217,7 @@ $(baseline2): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
 	$(PYTHON) $(srcdir)/baseline2.py $(qid_did_string_eid) $(did_tok)  > $@
 
 # string and document distance (exploratory)
-$(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
+$(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	$(PYTHON) $(srcdir)/baseline3.py \
 		$(qid_did_string_eid) $(did_tok) $(expdir)  > $@
@@ -227,7 +227,7 @@ $(baseline4): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
 	$(PYTHON) $(srcdir)/baseline4.py $(qid_sid_string_eid) $(sid_tok)  > $@
 
 # string and sentence distance (exploratory)
-$(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
+$(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	$(PYTHON) $(srcdir)/baseline5.py \
 		$(qid_sid_string_eid) $(sid_tok) $(expdir)  > $@
@@ -239,7 +239,8 @@ $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
 explore: $(unsupervised0) $(unsupervised1) $(semi_supervised0) $(semi_supervised1)
 
 # unsupervised without local context
-$(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
+$(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \
+		$(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight) $(data_X)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
@@ -248,7 +249,8 @@ $(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
 # unsupervised with local context only (i.e., no document-level token feature)
-$(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | $(outdir)
+$(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
+		$(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight_local) $(data_X)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
@@ -258,7 +260,7 @@ $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | $(outdir)
 
 # semi-supervised without local context
 $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
-		$(qid_eid) venv | $(outdir)
+		$(qid_eid) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
@@ -270,7 +272,7 @@ $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 
 # semi-supervised with local context
 $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
-		$(qid_eid) venv | $(outdir)
+		$(qid_eid) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight_local) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
@@ -303,6 +305,10 @@ venv/bin/activate: $(rscdir)/requirements.txt
 
 # create data directory
 $(datdir):
+	mkdir $@
+
+# create input directory
+$(iptdir):
 	mkdir $@
 
 # create output directory
