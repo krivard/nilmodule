@@ -243,7 +243,7 @@ $(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \
 		$(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight) $(data_X)
-	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
+	# TODO WORKAROUND: SEED FILE WITH ONLY ONE DATAPOINT
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
@@ -253,7 +253,7 @@ $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
 		$(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight_local) $(data_X)
-	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
+	# TODO WORKAROUND: SEED FILE WITH ONLY ONE DATAPOINT
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
@@ -265,7 +265,6 @@ $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_fid_weight) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
 	cp $(rid_lid_score) $(data_Y)
-	# TODO GENERATE SEEDS FROM PR OUTPUT
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
@@ -276,7 +275,6 @@ $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_fid_weight_local) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
 	cp $(rid_lid_score) $(data_Y)
-	# TODO GENERATE SEEDS FROM PR OUTPUT
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
