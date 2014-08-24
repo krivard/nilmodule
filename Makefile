@@ -32,7 +32,9 @@ qid_eid := $(datdir)/qid_eid.txt
 qid_name := $(datdir)/queryName_qid_name.txt
 qid_sid := $(datdir)/querySentence_qid_sid.txt
 did_tok := $(datdir)/inDocument_did_tok.txt
+sid_tok := $(datdir)/inSentence_sid_tok.txt
 qid_did_string_eid := $(datdir)/qid_did_string_eid.txt
+qid_sid_string_eid := $(datdir)/qid_sid_string_eid.txt
 
 # additional exploreEM input
 qid_rid := $(datdir)/qid_rid.txt
@@ -42,7 +44,9 @@ eid_feature := $(datdir)/qid_rid_eid_value_weight.txt
 string_feature := $(datdir)/qid_rid_string_value_weight.txt
 token_feature := $(datdir)/qid_rid_token_value_weight.txt
 sid_feature := $(datdir)/qid_rid_sid_value_weight.txt
+local_feature := $(datdir)/qid_rid_local_value_weight.txt
 rid_fid_weight := $(datdir)/rid_fid_weight.txt
+rid_fid_weight_local := $(datdir)/rid_fid_weight_local.txt
 
 # additional exploreEM input (PageReactor)
 qid_tacid := $(datdir)/qid_tacid.txt
@@ -64,6 +68,8 @@ baseline0 := $(outdir)/baseline0.txt
 baseline1 := $(outdir)/baseline1.txt
 baseline2 := $(outdir)/baseline2.txt
 baseline3 := $(outdir)/baseline3.txt
+baseline4 := $(outdir)/baseline4.txt
+baseline5 := $(outdir)/baseline5.txt
 unsupervised0 := $(outdir)/unsupervised0.txt
 unsupervised1 := $(outdir)/unsupervised1.txt
 semi_supervised0 := $(outdir)/semi_supervised0.txt
@@ -96,7 +102,8 @@ all: baseline explore
 
 # generate all input
 .PHONY: raw
-raw : $(qid_did_string_eid) $(rid_fid_weight) $(rid_lid_score) $(sid_feature)
+raw : $(qid_did_string_eid) $(qid_sid_string_eid) $(rid_fid_weight) \
+	$(rid_lid_score) $(rid_fid_weight_local)
 
 # ------------------------------------------------------------------------------
 
@@ -117,8 +124,15 @@ $(qid_did_string_eid): $(qid_eid) $(qid_name) $(qid_did) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.py \
 		$(qid_eid) $(qid_name) $(qid_did) > $@
 
+$(qid_sid_string_eid): $(qid_eid) $(qid_name) $(qid_sid) venv | $(datdir)
+	$(PYTHON) $(srcdir)/generate_qid_sid_string_eid.py \
+		$(qid_eid) $(qid_name) $(qid_sid) > $@
+
 $(did_tok): $(TOKEN) | $(datdir)
 	cp $(TOKEN) $@
+
+$(sid_tok): $(INSENT) | $(datdir)
+	cp $(INSENT) $@
 
 # ------------------------------------------------------------------------------
 
@@ -145,6 +159,10 @@ $(token_feature): $(did_tok) $(did_feature) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid_term_value_weight.py \
 		$(did_tok) $(did_feature) > $@
 
+$(local_feature): $(sid_tok) $(sid_feature) venv | $(datdir)
+	$(PYTHON) $(srcdir)/generate_qid_rid_local_value_weight.py \
+		$(sid_tok) $(sid_feature) > $@
+
 $(eid_feature): $(qid_eid_score) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid_eid_value_weight.py \
 		$(qid_eid_score) $(qid_rid) > $@
@@ -153,6 +171,11 @@ $(rid_fid_weight): $(string_feature) $(did_feature) $(token_feature) \
 		$(eid_feature) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_rid_fid_weight.py \
 		$(string_feature) $(did_feature) $(token_feature) $(eid_feature) > $@
+
+$(rid_fid_weight_local): $(string_feature) $(sid_feature) $(local_feature) \
+		$(eid_feature) venv | $(datdir)
+	$(PYTHON) $(srcdir)/generate_rid_fid_weight_local.py \
+		$(string_feature) $(sid_feature) $(local_feature) $(eid_feature) > $@
 
 # ------------------------------------------------------------------------------
 
@@ -178,7 +201,8 @@ $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 
 # baseline clustering
 .PHONY: baseline
-baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) 
+# TODO add $(baseline4) and $(baseline5)
+baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3)
 
 # string only
 $(baseline0): $(qid_did_string_eid) venv | $(outdir)
@@ -198,11 +222,21 @@ $(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
 	$(PYTHON) $(srcdir)/baseline3.py \
 		$(qid_did_string_eid) $(did_tok) $(expdir)  > $@
 
+# string and sentence distance (agglomerative)
+$(baseline4): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
+	$(PYTHON) $(srcdir)/baseline4.py $(qid_sid_string_eid) $(sid_tok)  > $@
+
+# string and sentence distance (exploratory)
+$(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
+	rm -rf $(iptdir)/*
+	$(PYTHON) $(srcdir)/baseline5.py \
+		$(qid_sid_string_eid) $(sid_tok) $(expdir)  > $@
+
 # ------------------------------------------------------------------------------
 
 # exploratory clustering
 .PHONY: explore
-explore: $(unsupervised0) $(semi_supervised0)
+explore: $(unsupervised0) $(unsupervised1) $(semi_supervised0) $(semi_supervised1)
 
 # unsupervised without local context
 $(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
@@ -214,9 +248,9 @@ $(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
 # unsupervised with local context only (i.e., no document-level token feature)
-$(unsupervised1): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | $(outdir)
+$(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | $(outdir)
 	rm -rf $(iptdir)/*
-	cp $(rid_fid_weight) $(data_X)
+	cp $(rid_fid_weight_local) $(data_X)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
@@ -235,14 +269,23 @@ $(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised with local context
-# TODO
+$(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
+		$(qid_eid) venv | $(outdir)
+	rm -rf $(iptdir)/*
+	cp $(rid_fid_weight_local) $(data_X)
+	cp $(rid_lid_score) $(seeds_Y)
+	# TODO WORKAROUND: SEED FILE WITH ONLY ONE SEED
+	cp $(rid_lid_score) $(data_Y)
+	# TODO GENERATE SEEDS FROM PR OUTPUT
+	cd $(EXPDIR); matlab $(M_FLAGS) $(EM_MAIN)
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn) $(qid_rid) $(qid_eid) > $@
 
 # ==============================================================================
 
 # evaluate output
-evaluation : $(results)
+evaluate : $(results)
 
-$(results): $(gold_qid_eid) venv | $(resdir)
+$(results): $(gold_qid_eid) $(outdir) venv | $(resdir)
 	$(PYTHON) $(SCORER) $(gold_qid_eid) $(outdir) > $@
 
 # ==============================================================================

@@ -1,6 +1,9 @@
-should all raw input be sanitized (i.e. converted to lower case etc.)? YES
+create config file/folder with clustering parameters
+matlab hook
 
-create config file with clustering parameters
+should all raw input be sanitized (i.e. converted to lower case etc.)? YES
+change "term" to "token"
+
 do preprocessing on inQuery and inDocument (drop dummy column)
 use threshold for score in parse_score.py ?
 make sure all scripts that use ExploreEM truncate the unused input files
@@ -10,6 +13,3 @@ use vpath directive: vpath %.py src/*; vpath %.txt data
 use .DELETE_ON_ERROR for data files
 problem: proppr removes names with special characters (should not matter for 
 exploratory version -> string is just one feature)
-
-prepare baseline5: clustering per string with sentence distance instead of 
-doc distance
