@@ -70,6 +70,10 @@ baseline2 := $(outdir)/baseline2.txt
 baseline3 := $(outdir)/baseline3.txt
 baseline4 := $(outdir)/baseline4.txt
 baseline5 := $(outdir)/baseline5.txt
+baseline6 := $(outdir)/baseline6.txt
+baseline7 := $(outdir)/baseline7.txt
+baseline8 := $(outdir)/baseline8.txt
+baseline9 := $(outdir)/baseline9.txt
 unsupervised0 := $(outdir)/unsupervised0.txt
 unsupervised1 := $(outdir)/unsupervised1.txt
 semi_supervised0 := $(outdir)/semi_supervised0.txt
@@ -201,8 +205,10 @@ $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 
 # baseline clustering
 .PHONY: baseline
-# TODO add $(baseline4) and $(baseline5)
-baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3)
+# TODO add $(baseline4) and $(baseline5) as soon as better local context data
+# is available
+baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) \
+	$(baseline4) $(baseline5) 
 
 # string only
 $(baseline0): $(qid_did_string_eid) venv | $(outdir)
@@ -232,11 +238,29 @@ $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 	$(PYTHON) $(srcdir)/baseline5.py \
 		$(qid_sid_string_eid) $(sid_tok) $(expdir)  > $@
 
+# string and sentence distance (agglomerative) where available;
+# document distance as fallback
+$(baseline6): $(qid_did_string_eid) $(did_tok) $(baseline4) venv | $(outdir)
+	# step 1: merge local context data into original data
+	#
+	# step 2: perform document distance clustering on remaining nils
+	$(PYTHON) $(srcdir)/baseline2.py $(qid_did_string_eid) $(did_tok)  > $@
+
+# string and sentence distance (exploratory) where available;
+# document distance as fallback
+$(baseline7): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
+	# step 1: merge local context data into original data
+	# step 2: perform document distance clustering on remaining nils
+	rm -rf $(iptdir)/*
+	$(PYTHON) $(srcdir)/baseline7.py \
+		$(qid_sid_string_eid) $(sid_tok) $(expdir)  > $@
+
 # ------------------------------------------------------------------------------
 
 # exploratory clustering
 .PHONY: explore
-explore: $(unsupervised0) $(unsupervised1) $(semi_supervised0) $(semi_supervised1)
+explore: $(unsupervised0) $(unsupervised1) $(semi_supervised0) \
+		$(semi_supervised1)
 
 # unsupervised without local context
 $(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \

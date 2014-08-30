@@ -1,17 +1,12 @@
+add version with global and local context
+add version with local context (primary) and global context (fallback)
 write documentation
-create config file/folder with clustering parameters
-matlab hook
-
-should all raw input be sanitized (i.e. converted to lower case etc.)? YES
+create config file/folder with clustering parameters or use cl arguments (better)
+matlab hook for parameters
+sanitize input (i.e. converted to lower case etc.)
+sort input
+drop dummy column in inQuery and inDocument
 change "term" to "token"
-make sur nid start with 001 and not 000
-
-do preprocessing on inQuery and inDocument (drop dummy column)
-use threshold for score in parse_score.py ?
-make sure all scripts that use ExploreEM truncate the unused input files
-sort all input (instead of just assuming that it is sorted)
-automate reporting (el_scorer and exploreEM statistics)
-use vpath directive: vpath %.py src/*; vpath %.txt data
+make sur nid start with "nil001" (not "nil000")
+use threshold for score in parse_score.py
 use .DELETE_ON_ERROR for data files
-problem: proppr removes names with special characters (should not matter for 
-exploratory version -> string is just one feature)
