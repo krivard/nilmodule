@@ -35,6 +35,7 @@ did_tok := $(datdir)/inDocument_did_tok.txt
 sid_tok := $(datdir)/inSentence_sid_tok.txt
 qid_did_string_eid := $(datdir)/qid_did_string_eid.txt
 qid_sid_string_eid := $(datdir)/qid_sid_string_eid.txt
+qid_did_string_eid_local:= $(datdir)/qid_did_string_eid.local.txt
 
 # additional exploreEM input
 qid_rid := $(datdir)/qid_rid.txt
@@ -242,9 +243,11 @@ $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 # document distance as fallback
 $(baseline6): $(qid_did_string_eid) $(did_tok) $(baseline4) venv | $(outdir)
 	# step 1: merge local context data into original data
-	#
+	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.local.py \
+		$(qid_did_string_eid) $(baseline4) > $(qid_did_string_eid_local)
 	# step 2: perform document distance clustering on remaining nils
-	$(PYTHON) $(srcdir)/baseline2.py $(qid_did_string_eid) $(did_tok)  > $@
+	$(PYTHON) $(srcdir)/baseline2.py \
+		$(qid_did_string_eid_local) $(did_tok)  > $@
 
 # string and sentence distance (exploratory) where available;
 # document distance as fallback
