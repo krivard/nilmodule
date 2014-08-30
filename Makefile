@@ -209,7 +209,7 @@ $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 # TODO add $(baseline4) and $(baseline5) as soon as better local context data
 # is available
 baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) \
-	$(baseline4) $(baseline5) 
+	$(baseline4) $(baseline5) $(baseline6) 
 
 # string only
 $(baseline0): $(qid_did_string_eid) venv | $(outdir)
@@ -221,42 +221,42 @@ $(baseline1): $(qid_did_string_eid) venv | $(outdir)
 
 # string and document distance (agglomerative)
 $(baseline2): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline2.py $(qid_did_string_eid) $(did_tok)  > $@
+	$(PYTHON) $(srcdir)/baseline2.py $(qid_did_string_eid) $(did_tok) > $@
 
 # string and document distance (exploratory)
 $(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	$(PYTHON) $(srcdir)/baseline3.py \
-		$(qid_did_string_eid) $(did_tok) $(expdir)  > $@
+		$(qid_did_string_eid) $(did_tok) $(expdir) > $@
 
 # string and sentence distance (agglomerative)
 $(baseline4): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline4.py $(qid_sid_string_eid) $(sid_tok)  > $@
+	$(PYTHON) $(srcdir)/baseline4.py $(qid_sid_string_eid) $(sid_tok) > $@
 
 # string and sentence distance (exploratory)
 $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	$(PYTHON) $(srcdir)/baseline5.py \
-		$(qid_sid_string_eid) $(sid_tok) $(expdir)  > $@
+		$(qid_sid_string_eid) $(sid_tok) $(expdir) > $@
 
 # string and sentence distance (agglomerative) where available;
-# document distance as fallback
+# document distance for remaining queries
 $(baseline6): $(qid_did_string_eid) $(did_tok) $(baseline4) venv | $(outdir)
 	# step 1: merge local context data into original data
 	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.local.py \
 		$(qid_did_string_eid) $(baseline4) > $(qid_did_string_eid_local)
 	# step 2: perform document distance clustering on remaining nils
-	$(PYTHON) $(srcdir)/baseline2.py \
-		$(qid_did_string_eid_local) $(did_tok)  > $@
+	$(PYTHON) $(srcdir)/baseline2.py --existing \
+		$(qid_did_string_eid_local) $(did_tok) > $@
 
 # string and sentence distance (exploratory) where available;
-# document distance as fallback
+# document distance for remaining queries
 $(baseline7): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
 	# step 1: merge local context data into original data
 	# step 2: perform document distance clustering on remaining nils
 	rm -rf $(iptdir)/*
 	$(PYTHON) $(srcdir)/baseline7.py \
-		$(qid_sid_string_eid) $(sid_tok) $(expdir)  > $@
+		$(qid_sid_string_eid) $(sid_tok) $(expdir) > $@
 
 # ------------------------------------------------------------------------------
 

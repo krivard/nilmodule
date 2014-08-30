@@ -10,10 +10,13 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('QID_DID_STRING_EID')
 parser.add_argument('DID_TOK')
+parser.add_argument('--existing', help='pre-existing nill ids', 
+        action='store_true')
 
 args = parser.parse_args()
 QID_DID_STRING_EID = args.QID_DID_STRING_EID
 DID_TOK = args.DID_TOK
+EXISTING = args.existing
 
 # TODO use config file
 metric_pairwise = 'jaccard'
@@ -41,9 +44,16 @@ vocab = pd.Series(data=df3.tok.unique(), name='tok')
 # Create df with 'string [did]'
 df4 = df2.groupby('string')['did'].apply(pd.Series.unique)
 
+# Set starting value for nid counter
+if EXISTING:
+    nils = df1.string.str.extract('nil(\d+)')
+    start_value = nils.convert_objects(convert_numeric=True).max() + 1
+else:
+    start_value = 1
+
 # Create dict with (string, did) as key and nid as value
 nid = {}
-c = count(start=1)
+c = count(start=start_value)
 for row in df4.iteritems():
     string, docs = row
     if len(docs) == 1:

@@ -27,10 +27,9 @@ df4 = df2.set_index('qid')
 # Merge 'qid did string eid' into 'qid eid'
 df5 = df4.combine_first(df3)
 
-# Convert 'qid' back into a regular column
+# Convert 'qid' back into a regular column and reorder columns
 df5.reset_index(inplace=True)
+df6 = df5.reindex(columns=['qid', 'did', 'string', 'eid'])
 
 # Write 'qid eid' to stdout
-df5.to_csv(sys.stdout, header=False, index=False, sep='\t')
-
-#TODO REINDEX NILS! O/W CONFLICTS WITH NEW NILS!
+df6.to_csv(sys.stdout, header=False, index=False, sep='\t')
