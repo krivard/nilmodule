@@ -46,8 +46,8 @@ df4 = df2.groupby('string')['did'].apply(pd.Series.unique)
 
 # Set starting value for nid counter
 if EXISTING:
-    nils = df1.string.str.extract('nil(\d+)')
-    start_value = nils.convert_objects(convert_numeric=True).max() + 1
+    nils = df1.eid.str.extract('nil(\d+)')
+    start_value = int(nils.convert_objects(convert_numeric=True).max() + 1)
 else:
     start_value = 1
 

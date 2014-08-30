@@ -46,9 +46,7 @@ df4 = df2.groupby('string')['sid'].apply(pd.Series.unique)
 nid = {}
 c = count(start=1)
 session = pymatlab.session_factory()
-# TODO DOES THIS WORK?
 session.run("cd('" + EXPLORE_EM + "')")
-#session.run("cd('./input/s5/ExploreEM_package_v2')")
 for row in df4.iteritems():
     string, docs = row
     if len(docs) == 1:
@@ -79,19 +77,14 @@ for row in df4.iteritems():
         dataX.to_csv(EXPLORE_EM + '/data/data.Y.txt', 
                 header=False, index=False, sep='\t')
 
-        # Load input into MATLAB session
-        #session.putvalue('dataX', dataX)
-        #session.putvalue('dataY', dataY)
-        #session.putvalue('seedsY', seedsY)
-
         # Perform exploratory clustering
         session.run('All_BIC_ExplEM_Main')
 
         # TODO USE ALL FEATURES, NOT JUST TERMS!
-        #OUTPUT = glob.glob('input/s5/ExploreEM_package_v2/data/*assgn.txt')[0]
         OUTPUT = glob.glob(EXPLORE_EM + '/data/*assgn.txt')[0]
         assignment = pd.read_table(OUTPUT, header=None)
-        cluster = np.arange(assignment.shape[1])
+        #cluster = np.arange(assignment.shape[1])
+        cluster = np.array([c.next() for i in range(assignment.shape[1])])
         ids = np.dot(assignment, cluster)
 
         for i, sid in enumerate(docs):
