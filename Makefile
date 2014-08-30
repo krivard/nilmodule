@@ -35,7 +35,8 @@ did_tok := $(datdir)/inDocument_did_tok.txt
 sid_tok := $(datdir)/inSentence_sid_tok.txt
 qid_did_string_eid := $(datdir)/qid_did_string_eid.txt
 qid_sid_string_eid := $(datdir)/qid_sid_string_eid.txt
-qid_did_string_eid_local:= $(datdir)/qid_did_string_eid.local.txt
+qid_did_string_eid_agglomerative := $(datdir)/qid_did_string_eid_agglomerative.txt
+qid_did_string_eid_exploratory := $(datdir)/qid_did_string_eid_exploratory.txt
 
 # additional exploreEM input
 qid_rid := $(datdir)/qid_rid.txt
@@ -209,7 +210,7 @@ $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 # TODO add $(baseline4) and $(baseline5) as soon as better local context data
 # is available
 baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) \
-	$(baseline4) $(baseline5) $(baseline6) 
+	$(baseline4) $(baseline5) $(baseline6) $(baseline7)
 
 # string only
 $(baseline0): $(qid_did_string_eid) venv | $(outdir)
@@ -244,19 +245,24 @@ $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 $(baseline6): $(qid_did_string_eid) $(did_tok) $(baseline4) venv | $(outdir)
 	# step 1: merge local context data into original data
 	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.local.py \
-		$(qid_did_string_eid) $(baseline4) > $(qid_did_string_eid_local)
+		$(qid_did_string_eid) $(baseline4) > $(qid_did_string_eid_agglomerative)
 	# step 2: perform document distance clustering on remaining nils
 	$(PYTHON) $(srcdir)/baseline2.py --existing \
-		$(qid_did_string_eid_local) $(did_tok) > $@
+		$(qid_did_string_eid_agglomerative) $(did_tok) > $@
+	# TODO CHECK RESULT
 
 # string and sentence distance (exploratory) where available;
 # document distance for remaining queries
-$(baseline7): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
+$(baseline7): $(qid_did_string_eid) $(did_tok) $(baseline5) venv | $(outdir) \
+	$(iptdir)
 	# step 1: merge local context data into original data
+	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.local.py \
+		$(qid_did_string_eid) $(baseline5) > $(qid_did_string_eid_exploratory)
 	# step 2: perform document distance clustering on remaining nils
 	rm -rf $(iptdir)/*
-	$(PYTHON) $(srcdir)/baseline7.py \
-		$(qid_sid_string_eid) $(sid_tok) $(expdir) > $@
+	$(PYTHON) $(srcdir)/baseline3.py --existing \
+		$(qid_did_string_eid_exploratory) $(did_tok) $(expdir) > $@
+	# TODO CHECK RESULT
 
 # ------------------------------------------------------------------------------
 
