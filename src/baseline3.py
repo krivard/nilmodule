@@ -82,7 +82,7 @@ for row in df4.iteritems():
         dataY = pd.DataFrame(dataY)
         #seedsY = np.ones((2, 3))
         #dataY.to_csv('input/s5/ExploreEM_package_v2/data/data.Y.txt', 
-        dataX.to_csv(EXPLORE_EM + '/data/data.Y.txt', 
+        dataY.to_csv(EXPLORE_EM + '/data/data.Y.txt', 
                 header=False, index=False, sep='\t')
 
         # Perform exploratory clustering

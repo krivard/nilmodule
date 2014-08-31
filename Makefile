@@ -4,10 +4,11 @@
 
 # external data (NB these lines will have to be changed)
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3
-PROPPR_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.t_0.028.results.txt
+#PROPPR_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.t_0.028.results.txt
 PROPPR_TRAIN := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
-SCORE := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
+#SCORE_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.solutions.txt
+SCORE_TRAIN := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
 TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
 QSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/querySentence_qid_sid.cfacts
 INSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/inSentence_sid_tok.cfacts
@@ -17,7 +18,7 @@ GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB
 
 # parameters for baseline clustering using global or local context 
 # (NB these lines may be changed)
-GLOBAL_BASELINE_CLUSTERING_FLAGS :=
+GLOBAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.5
 LOCAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.7
 
 # ==============================================================================
@@ -132,8 +133,9 @@ $(qid_name): $(QNAME) | $(datdir)
 $(qid_sid): $(QSENT) | $(datdir)
 	cp $(QSENT) $@
 
-$(qid_did): $(SCORE) venv | $(datdir)
-	$(PYTHON) $(srcdir)/parse_did.py < $(SCORE) > $@
+# TODO ### SORT OUTPUT
+$(qid_did): $(SCORE_TRAIN) $(SCORE_TEST) venv | $(datdir)
+	$(PYTHON) $(srcdir)/parse_did.py $(SCORE_TRAIN) $(SCORE_TEST) > $@
 
 $(qid_did_string_eid): $(qid_eid) $(qid_name) $(qid_did) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.py \
@@ -155,8 +157,9 @@ $(sid_tok): $(INSENT) | $(datdir)
 $(qid_rid): venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid.py $(qid_eid) > $@
 
-$(qid_eid_score): $(SCORE) venv | $(datdir)
-	$(PYTHON) $(srcdir)/parse_score.py < $(SCORE) > $@
+# TODO ### SORT OUTPUT
+$(qid_eid_score): $(SCORE_TRAIN) $(SCORE_TEST) venv | $(datdir)
+	$(PYTHON) $(srcdir)/parse_score.py $(SCORE_TRAIN) $(SCORE_TEST) > $@
 
 $(string_feature): $(qid_name) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid_string_value_weight.py \
