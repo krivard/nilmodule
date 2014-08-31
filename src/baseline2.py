@@ -10,24 +10,22 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('QID_DID_STRING_EID')
 parser.add_argument('DID_TOK')
-parser.add_argument('--existing', metavar='EXISTING', 
-        help='pre-existing nill ids', action='store_true')
-parser.add_argument('--pairwise-dist', metavar='METRIC_PAIRWISE', 
-        help='pairwise distance metric', default='jaccard')
-parser.add_argument('--cluster-dist', metavar='METRIC_CLUSTER',
-        help='cluster distance metric', default='euclidean')
-parser.add_argument('--method', metavar='METHOD', 
-        help='clustering method', default='single')
-parser.add_argument('--threshold', metavar='THRESHOLD', 
-        type='float', help='clustering method', default=0.5)
+parser.add_argument('--existing', help='pre-existing nill ids', 
+        action='store_true')
+parser.add_argument('--pairwise', help='pairwise distance metric', 
+        default='jaccard')
+parser.add_argument('--cluster', help='cluster distance metric', 
+        default='euclidean')
+parser.add_argument('--method', help='clustering method', default='single')
+parser.add_argument('--threshold', help='clustering threshold', default='0.5')
 args = parser.parse_args()
 QID_DID_STRING_EID = args.QID_DID_STRING_EID
 DID_TOK = args.DID_TOK
-EXISTING = args.EXISTING
-metric_pairwise = args.METRIC_PAIRWISE
-metric_cluster= args.METRIC_CLUSTER
-method = args.METHOD
-threshold = args.THRESHOLD
+EXISTING = args.existing
+metric_pairwise = args.pairwise
+metric_cluster= args.cluster
+method = args.method
+threshold = float(args.threshold)
 
 # Load 'qid did string eid' into dataframe
 df1 = pd.read_table(QID_DID_STRING_EID, header=None, 

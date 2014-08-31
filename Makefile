@@ -15,7 +15,6 @@ GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB
 
 # parameters for baseline clustering using global or local context 
 # (NB these lines may be changed)
-# TODO ###
 GLOBAL_BASELINE_CLUSTERING_FLAGS :=
 LOCAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.7
 
@@ -233,7 +232,8 @@ $(baseline1): $(qid_did_string_eid) venv | $(outdir)
 
 # string and document distance (agglomerative)
 $(baseline2): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline2.py $(qid_did_string_eid) $(did_tok) > $@
+	$(PYTHON) $(srcdir)/baseline2.py $(GLOBAL_BASELINE_CLUSTERING_FLAGS) \
+		$(qid_did_string_eid) $(did_tok) > $@
 
 # string and document distance (exploratory)
 $(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
@@ -243,7 +243,8 @@ $(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
 
 # string and sentence distance (agglomerative)
 $(baseline4): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline4.py $(qid_sid_string_eid) $(sid_tok) > $@
+	$(PYTHON) $(srcdir)/baseline4.py $(LOCAL_BASELINE_CLUSTERING_FLAGS) \
+		$(qid_sid_string_eid) $(sid_tok) > $@
 
 # string and sentence distance (exploratory)
 $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
