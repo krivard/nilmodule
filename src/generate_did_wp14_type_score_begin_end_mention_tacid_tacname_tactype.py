@@ -13,11 +13,15 @@ args = parser.parse_args()
 TACPR = args.TACPR
 
 # Load PR/TAC data into dataframe
+#df1 = pd.read_table(TACPR, header=None, names=['did', 'wp14', 'type', 'score', 
 df1 = pd.read_table(TACPR, header=None, names=['did', 'wp14', 'type', 'score', 
-    'begin', 'end', 'mention', 'tacid', 'tacname' , 'tactype'])
+    'begin', 'end', 'mention', 'tacid', 'tacname' , 'tactype', 'gentype'])
 
-# Select NILs
-df2 = df1[df1['tacid'].isnull()]
+# Select NILs where gentype is either PERSON, PLACE or ORGANIZATION
+#df2 = df1[df1['tacid'].isnull()]
+df2 = df1[df1['tacid'].isnull() & \
+        df1['gentype'].notnull() & \
+        (df1['gentype'] != 'OTHER')]
 
 # Assign nilID
 c = count(start=1)

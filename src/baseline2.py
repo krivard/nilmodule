@@ -41,7 +41,7 @@ df3 = pd.read_table(DID_TOK, header=None,
 terms = df3.groupby('did')['tok'].apply(pd.Series.unique)
 
 # Create vocabulary
-# TODO if performance is a problem: only use nil vocab
+# TODO if performance is a problem: use nil vocab only 
 vocab = pd.Series(data=df3.tok.unique(), name='tok')
 
 # Create df with 'string [did]'

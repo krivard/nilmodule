@@ -4,13 +4,15 @@
 
 # external data (NB these lines will have to be changed)
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3
-PROPPR := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
+PROPPR_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.t_0.028.results.txt
+PROPPR_TRAIN := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
 SCORE := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
 TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
 QSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/querySentence_qid_sid.cfacts
 INSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/inSentence_sid_tok.cfacts
-TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
+#TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
+TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.genericType.txt
 GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB_links.tab
 
 # parameters for baseline clustering using global or local context 
@@ -120,8 +122,9 @@ raw : $(qid_did_string_eid) $(qid_sid_string_eid) $(rid_fid_weight_global) \
 # ------------------------------------------------------------------------------
 
 # generate common input for baseline and exploreEM
-$(qid_eid): $(PROPPR) | $(datdir)
-	cp $(PROPPR) $@
+$(qid_eid): $(PROPPR_TRAIN) $(PROPPR_TEST) | $(datdir)
+	#cp $(PROPPR) $@
+	cat $(PROPPR_TRAIN) $(PROPPR_TEST) | sort > $@
 
 $(qid_name): $(QNAME) | $(datdir)
 	cp $(QNAME) $@
