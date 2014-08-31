@@ -56,27 +56,23 @@ else:
 nid = {}
 c = count(start=start_value)
 session = pymatlab.session_factory()
-# TODO DOES THIS WORK?
 session.run("cd('" + EXPLORE_EM + "')")
-#session.run("cd('./input/s5/ExploreEM_package_v2')")
 for row in df4.iteritems():
     string, docs = row
     if len(docs) == 1:
         nid[(string, docs[0])] = c.next()
     else:
         # Generate data.X.txt input
-        rid_fid_weight_list = []
-        for row, did in enumerate(docs):
-            fid = features[vocab.isin(terms[did])]
+        dataX = pd.DataFrame()
+        for row, sid in enumerate(docs):
+            fid = features[vocab.isin(terms[sid])]
             rid = np.empty(len(fid))
             rid.fill(row+1)
             weight = np.empty(len(fid))
             weight.fill(1)
-            rid_fid_weight_list.append(pd.DataFrame([rid, fid, weight]).T)
+            dataX = dataX.append(pd.DataFrame([rid, fid, weight]).T)
 
         # Write input to file
-        dataX = pd.concat(rid_fid_weight_list)
-        #dataX.to_csv('input/s5/ExploreEM_package_v2/data/data.X.txt', 
         dataX.to_csv(EXPLORE_EM + '/data/data.X.txt', 
                 header=False, index=False, sep='\t')
 
