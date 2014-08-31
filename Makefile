@@ -2,7 +2,7 @@
 #                 MAKEFILE NILCLUSTERING MODULE TAC/KBP 2014                   #
 ################################################################################
 
-# external data (NB these should be the only lines that need to be changed)
+# external data (NB these lines will have to be changed)
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3
 PROPPR := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
@@ -12,6 +12,12 @@ QSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/querySenten
 INSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/inSentence_sid_tok.cfacts
 TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
 GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB_links.tab
+
+# parameters for baseline clustering using global or local context 
+# (NB these lines may be changed)
+# TODO ###
+GLOBAL_BASELINE_CLUSTERING_FLAGS :=
+LOCAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.7
 
 # ==============================================================================
 
@@ -47,8 +53,9 @@ string_feature := $(datdir)/qid_rid_string_value_weight.txt
 token_feature := $(datdir)/qid_rid_token_value_weight.txt
 sid_feature := $(datdir)/qid_rid_sid_value_weight.txt
 local_feature := $(datdir)/qid_rid_local_value_weight.txt
-rid_fid_weight := $(datdir)/rid_fid_weight.txt
+rid_fid_weight_global := $(datdir)/rid_fid_weight_global.txt
 rid_fid_weight_local := $(datdir)/rid_fid_weight_local.txt
+rid_fid_weight := $(datdir)/rid_fid_weight.txt
 
 # additional exploreEM input (PageReactor)
 qid_tacid := $(datdir)/qid_tacid.txt
@@ -74,12 +81,12 @@ baseline4 := $(outdir)/baseline4.txt
 baseline5 := $(outdir)/baseline5.txt
 baseline6 := $(outdir)/baseline6.txt
 baseline7 := $(outdir)/baseline7.txt
-baseline8 := $(outdir)/baseline8.txt
-baseline9 := $(outdir)/baseline9.txt
 unsupervised0 := $(outdir)/unsupervised0.txt
 unsupervised1 := $(outdir)/unsupervised1.txt
+unsupervised2 := $(outdir)/unsupervised2.txt
 semi_supervised0 := $(outdir)/semi_supervised0.txt
 semi_supervised1 := $(outdir)/semi_supervised1.txt
+semi_supervised2 := $(outdir)/semi_supervised2.txt
 
 # ------------------------------------------------------------------------------
 
@@ -108,8 +115,8 @@ all: baseline explore
 
 # generate all input
 .PHONY: raw
-raw : $(qid_did_string_eid) $(qid_sid_string_eid) $(rid_fid_weight) \
-	$(rid_lid_score) $(rid_fid_weight_local)
+raw : $(qid_did_string_eid) $(qid_sid_string_eid) $(rid_fid_weight_global) \
+	$(rid_fid_weight_local) $(rid_fid_weight) $(rid_lid_score) 
 
 # ------------------------------------------------------------------------------
 
@@ -173,15 +180,21 @@ $(eid_feature): $(qid_eid_score) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid_eid_value_weight.py \
 		$(qid_eid_score) $(qid_rid) > $@
 
-$(rid_fid_weight): $(string_feature) $(did_feature) $(token_feature) \
+$(rid_fid_weight_global): $(string_feature) $(did_feature) $(token_feature) \
 		$(eid_feature) venv | $(datdir)
-	$(PYTHON) $(srcdir)/generate_rid_fid_weight.py \
+	$(PYTHON) $(srcdir)/generate_rid_fid_weight_global.py \
 		$(string_feature) $(did_feature) $(token_feature) $(eid_feature) > $@
 
 $(rid_fid_weight_local): $(string_feature) $(sid_feature) $(local_feature) \
 		$(eid_feature) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_rid_fid_weight_local.py \
 		$(string_feature) $(sid_feature) $(local_feature) $(eid_feature) > $@
+
+$(rid_fid_weight): $(string_feature) $(did_feature) $(token_feature) \
+	$(sid_feature) $(local_feature) $(eid_feature) venv | $(datdir)
+	$(PYTHON) $(srcdir)/generate_rid_fid_weight.py \
+		$(string_feature) $(did_feature) $(token_feature) \
+		$(sid_feature) $(local_feature) $(eid_feature) > $@
 
 # ------------------------------------------------------------------------------
 
@@ -207,8 +220,6 @@ $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 
 # baseline clustering
 .PHONY: baseline
-# TODO add $(baseline4) and $(baseline5) as soon as better local context data
-# is available
 baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) \
 	$(baseline4) $(baseline5) $(baseline6) $(baseline7)
 
@@ -241,10 +252,10 @@ $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 		$(qid_sid_string_eid) $(sid_tok) $(expdir) > $@
 
 # string and sentence distance (agglomerative) where available;
-# document distance for remaining queries
+# string and document distance for remaining queries
 $(baseline6): $(qid_did_string_eid) $(did_tok) $(baseline4) venv | $(outdir)
 	# step 1: merge local context data into original data
-	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.local.py \
+	$(PYTHON) $(srcdir)/generate_qid_did_string_eid_local.py \
 		$(qid_did_string_eid) $(baseline4) > $(qid_did_string_eid_agglomerative)
 	# step 2: perform document distance clustering on remaining nils
 	$(PYTHON) $(srcdir)/baseline2.py --existing \
@@ -252,11 +263,11 @@ $(baseline6): $(qid_did_string_eid) $(did_tok) $(baseline4) venv | $(outdir)
 	# TODO CHECK RESULT
 
 # string and sentence distance (exploratory) where available;
-# document distance for remaining queries
+# string and document distance for remaining queries
 $(baseline7): $(qid_did_string_eid) $(did_tok) $(baseline5) venv | $(outdir) \
 	$(iptdir)
 	# step 1: merge local context data into original data
-	$(PYTHON) $(srcdir)/generate_qid_did_string_eid.local.py \
+	$(PYTHON) $(srcdir)/generate_qid_did_string_eid_local.py \
 		$(qid_did_string_eid) $(baseline5) > $(qid_did_string_eid_exploratory)
 	# step 2: perform document distance clustering on remaining nils
 	rm -rf $(iptdir)/*
@@ -268,20 +279,20 @@ $(baseline7): $(qid_did_string_eid) $(did_tok) $(baseline5) venv | $(outdir) \
 
 # exploratory clustering
 .PHONY: explore
-explore: $(unsupervised0) $(unsupervised1) $(semi_supervised0) \
-		$(semi_supervised1)
+explore: $(unsupervised0) $(unsupervised1) $(unsupervised2) \
+	$(semi_supervised0) $(semi_supervised1) $(semi_supervised2)
 
-# unsupervised without local context
-$(unsupervised0): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \
+# unsupervised with global context only
+$(unsupervised0): $(rid_fid_weight_global) $(qid_rid) $(qid_eid) venv | \
 		$(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
-	cp $(rid_fid_weight) $(data_X)
+	cp $(rid_fid_weight_global) $(data_X)
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE DATAPOINT
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
-# unsupervised with local context only (i.e., no document-level token feature)
+# unsupervised with local context only
 $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
 		$(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
@@ -291,21 +302,41 @@ $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
-# semi-supervised without local context
-$(semi_supervised0): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
-		$(qid_eid) venv | $(outdir) $(iptdir)
+# unsupervised with global and local context
+$(unsupervised2): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \
+		$(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight) $(data_X)
+	# TODO WORKAROUND: SEED FILE WITH ONLY ONE DATAPOINT
+	echo "1\t1" > $(data_Y)
+	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+
+# semi-supervised with global context only
+$(semi_supervised0): $(rid_fid_weight_global) $(rid_lid_score) $(qid_rid) \
+		$(qid_eid) venv | $(outdir) $(iptdir)
+	rm -rf $(iptdir)/*
+	cp $(rid_fid_weight_global) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
 	cp $(rid_lid_score) $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
-# semi-supervised with local context
+# semi-supervised with local context only
 $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
 		$(qid_eid) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	cp $(rid_fid_weight_local) $(data_X)
+	cp $(rid_lid_score) $(seeds_Y)
+	cp $(rid_lid_score) $(data_Y)
+	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
+	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+
+# semi-supervised with global and local context
+$(semi_supervised2): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
+		$(qid_eid) venv | $(outdir) $(iptdir)
+	rm -rf $(iptdir)/*
+	cp $(rid_fid_weight) $(data_X)
 	cp $(rid_lid_score) $(seeds_Y)
 	cp $(rid_lid_score) $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)

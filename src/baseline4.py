@@ -6,20 +6,25 @@ import pandas as pd
 from scipy import cluster, spatial
 import sys
 
-# Parse path to input files
+# Parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('QID_SID_STRING_EID')
 parser.add_argument('SID_TOK')
-
+parser.add_argument('--pairwise-dist', metavar='METRIC_PAIRWISE', 
+        help='pairwise distance metric', default='jaccard')
+parser.add_argument('--cluster-dist', metavar='METRIC_CLUSTER',
+        help='cluster distance metric', default='euclidean')
+parser.add_argument('--method', metavar='METHOD', 
+        help='clustering method', default='single')
+parser.add_argument('--threshold', metavar='THRESHOLD', 
+        type='float', help='clustering method', default=0.5)
 args = parser.parse_args()
 QID_SID_STRING_EID = args.QID_SID_STRING_EID
 SID_TOK = args.SID_TOK
-
-# TODO use config file
-metric_pairwise = 'jaccard'
-metric_cluster= 'euclidean'
-method = 'single'
-threshold = 0.5
+metric_pairwise = args.METRIC_PAIRWISE
+metric_cluster= args.METRIC_CLUSTER
+method = args.METHOD
+threshold = args.THRESHOLD
 
 # Load 'qid sid string eid' into dataframe
 df1 = pd.read_table(QID_SID_STRING_EID, header=None, 

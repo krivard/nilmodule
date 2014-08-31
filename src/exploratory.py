@@ -21,7 +21,7 @@ assignments = np.loadtxt(open(ASSGN))
 
 # Generate array with nilID
 nbcluster = assignments.shape[1]
-cluster_list = [ i for i in range(nbcluster) ]
+cluster_list = [ i for i in range(1, nbcluster+1) ]
 cluster = np.array(cluster_list)
 nils = np.dot(assignments, cluster)
 

@@ -89,11 +89,6 @@ for row in df4.iteritems():
         dataX.to_csv(EXPLORE_EM + '/data/data.Y.txt', 
                 header=False, index=False, sep='\t')
 
-        # Load input into MATLAB session
-        #session.putvalue('dataX', dataX)
-        #session.putvalue('dataY', dataY)
-        #session.putvalue('seedsY', seedsY)
-
         # Perform exploratory clustering
         session.run('All_BIC_ExplEM_Main')
 
