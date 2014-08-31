@@ -226,7 +226,8 @@ $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 # baseline clustering
 .PHONY: baseline
 baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) \
-	$(baseline4) $(baseline5) $(baseline6) $(baseline7)
+	$(baseline4) $(baseline6) $(baseline7)
+	#$(baseline4) $(baseline5) $(baseline6) $(baseline7)
 
 # string only
 $(baseline0): $(qid_did_string_eid) venv | $(outdir)

@@ -92,10 +92,21 @@ for iter = 1 : maxNumIter
             BaselineAssn(i) = cID;
             P_Cj_Xi(i, :) = zeros(1, numClasses);
         else
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % DEBUG
+            S=sprintf('iteration: %d', i);
+            disp(S);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
             % Find out the entities which did not
             % belong to any of the existing
             % clusters, and put them in new clusters
             if (numClasses == 0)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % DEBUG
+            S=sprintf('numClasses: %d', numClasses);
+            disp(S);
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	        decision =1;
                 maxWt = 0;
                 maxI = 0;
@@ -141,12 +152,25 @@ for iter = 1 : maxNumIter
                     P_Cj_XiNorm(i+1:numDocs, :) = normrow(P_Cj_Xi(i+1:numDocs, :));
                 end
             else
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % DEBUG
+                S=sprintf('cID : %d, maxI : %d', cID, maxI);
+                disp(S);
+                % cID is zero!
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 cID = maxI;
             end
         end
         if (hard == 1)
             P_Cj_Xi(i, :) = zeros(1, numClasses);
         end
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % DEBUG
+        S=sprintf('i : %d, cID : %d, maxI : %d', i, cID, maxI);
+        disp(S);
+        % cID is zero!
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         P_Cj_Xi(i, cID) = maxWt;
         NewAssgn(i) = cID;
