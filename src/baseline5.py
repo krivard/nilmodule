@@ -23,6 +23,9 @@ EXPLORE_EM = args.EXPLORE_EM
 df1 = pd.read_table(QID_SID_STRING_EID, header=None, 
         names=['qid', 'sid', 'string', 'eid'])
 
+# Sort by ascending qid
+df1.sort('qid', inplace=True)
+
 # Select queries where 'eid' is NIL
 df2 = df1[df1['eid'] == 'nil']
 

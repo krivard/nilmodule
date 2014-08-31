@@ -4,10 +4,10 @@
 
 # external data (NB these lines will have to be changed)
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3
-#PROPPR_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.t_0.028.results.txt
+PROPPR_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.t_0.028.results.txt
 PROPPR_TRAIN := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
 QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
-#SCORE_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.solutions.txt
+SCORE_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.solutions.txt
 SCORE_TRAIN := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
 TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
 QSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/querySentence_qid_sid.cfacts
@@ -253,6 +253,7 @@ $(baseline4): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
 		$(qid_sid_string_eid) $(sid_tok) > $@
 
 # string and sentence distance (exploratory)
+# TODO PROBLEM HERE WHEN USING TRAIN + TEST DATA ###
 $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	$(PYTHON) $(srcdir)/baseline5.py \

@@ -26,6 +26,9 @@ EXISTING = args.existing
 df1 = pd.read_table(QID_DID_STRING_EID, header=None, 
         names=['qid', 'did', 'string', 'eid'])
 
+# Sort by ascending qid
+df1.sort('qid', inplace=True)
+
 # Select queries where 'eid' is NIL
 df2 = df1[df1['eid'] == 'nil']
 
