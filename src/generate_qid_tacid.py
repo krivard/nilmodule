@@ -17,7 +17,7 @@ QID_NAME = args.QID_NAME
 
 df1 = pd.read_table(QID_NAME, header=None, names=['queryName', 'qid', 'name'])
 df2 = pd.read_table(TACPR_RAW, header=None, names=['did', 'wp14', 'type', 
-        'score', 'begin', 'end', 'mention', 'tacid', 'tacname', 'tactype'])
+        'score', 'begin', 'end', 'mention', 'tacid', 'tacname', 'tactype', 'gentype'])
 
 df1['name'] = df1.name.str.lower()
 df1['name'] = df1.name.str.replace(' ', '_')

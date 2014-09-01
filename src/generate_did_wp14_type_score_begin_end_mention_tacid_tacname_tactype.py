@@ -19,9 +19,9 @@ df1 = pd.read_table(TACPR, header=None, names=['did', 'wp14', 'type', 'score',
 
 # Select NILs where gentype is either PERSON, PLACE or ORGANIZATION
 #df2 = df1[df1['tacid'].isnull()]
-df2 = df1[df1['tacid'].isnull() & \
-        df1['gentype'].notnull() & \
-        (df1['gentype'] != 'OTHER')]
+# TODO IS THIS CORRECT? ###
+df2 = df1[df1['tacid'].isnull() &  df1['gentype'].notnull()]
+df2 = df2[df2['gentype'] != 'OTHER']
 
 # Assign nilID
 c = count(start=1)
@@ -36,6 +36,8 @@ df2['mention'] = df2.mention.str.replace(' ', '_')
 
 # Merge NILs back into PR/TAC dataframe
 df3 = df2.combine_first(df1)
+# TODO IS THIS CORRECT? ###
+df3 = df3[df3['tacid'].notnull()]
 
 # Write data to stdout
 df3.to_csv(sys.stdout, header=False, index=False, sep='\t')

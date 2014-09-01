@@ -209,8 +209,10 @@ $(tacpr_raw): venv | $(datdir)
 		$(TACPR) > $@
 
 $(qid_tacid): $(tacpr_raw) $(qid_name) venv | $(datdir)
+	#$(PYTHON) $(srcdir)/generate_qid_tacid.py $(TACPR) $(qid_name) > $@
 	$(PYTHON) $(srcdir)/generate_qid_tacid.py $(tacpr_raw) $(qid_name) > $@
 
+# TODO ###
 $(rid_lid_score): $(qid_tacid) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_rid_lid_score.py $(qid_tacid) $(qid_rid) > $@
 
