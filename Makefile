@@ -16,8 +16,10 @@ INSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/inSentence
 TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.genericType.txt
 GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB_links.tab
 
-# parameters for baseline clustering using global or local context 
-# (NB these lines may be changed)
+# formatting parameters
+FORMATTING_FLAGS := --padding=4
+
+# baseline clustering parameters
 GLOBAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.5
 LOCAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.7
 
@@ -233,33 +235,37 @@ baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) \
 
 # string only
 $(baseline0): $(qid_did_string_eid) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline0.py $(qid_did_string_eid) > $@
+	$(PYTHON) $(srcdir)/baseline0.py $(FORMATTING_FLAGS) \
+		$(qid_did_string_eid) > $@
 
 # string and did
 $(baseline1): $(qid_did_string_eid) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline1.py $(qid_did_string_eid) > $@
+	$(PYTHON) $(srcdir)/baseline1.py $(FORMATTING_FLAGS) \
+	   	$(qid_did_string_eid) > $@
 
 # string and document distance (agglomerative)
 $(baseline2): $(qid_did_string_eid) $(did_tok) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline2.py $(GLOBAL_BASELINE_CLUSTERING_FLAGS) \
+	$(PYTHON) $(srcdir)/baseline2.py $(FORMATTING_FLAGS) \
+		$(GLOBAL_BASELINE_CLUSTERING_FLAGS) \
 		$(qid_did_string_eid) $(did_tok) > $@
 
 # string and document distance (exploratory)
 $(baseline3): $(qid_did_string_eid) $(did_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
-	$(PYTHON) $(srcdir)/baseline3.py \
+	$(PYTHON) $(srcdir)/baseline3.py $(FORMATTING_FLAGS) \
 		$(qid_did_string_eid) $(did_tok) $(expdir) > $@
 
 # string and sentence distance (agglomerative)
 $(baseline4): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
-	$(PYTHON) $(srcdir)/baseline4.py $(LOCAL_BASELINE_CLUSTERING_FLAGS) \
+	$(PYTHON) $(srcdir)/baseline4.py $(FORMATTING_FLAGS) \
+		$(LOCAL_BASELINE_CLUSTERING_FLAGS) \
 		$(qid_sid_string_eid) $(sid_tok) > $@
 
 # string and sentence distance (exploratory)
 # TODO PROBLEM HERE WHEN USING TRAIN + TEST DATA ###
 $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
-	$(PYTHON) $(srcdir)/baseline5.py \
+	$(PYTHON) $(srcdir)/baseline5.py $(FORMATTING_FLAGS) \
 		$(qid_sid_string_eid) $(sid_tok) $(expdir) > $@
 
 # string and sentence distance (agglomerative) where available;
@@ -269,7 +275,7 @@ $(baseline6): $(qid_did_string_eid) $(did_tok) $(baseline4) venv | $(outdir)
 	$(PYTHON) $(srcdir)/generate_qid_did_string_eid_local.py \
 		$(qid_did_string_eid) $(baseline4) > $(qid_did_string_eid_agglomerative)
 	# step 2: perform document distance clustering on remaining nils
-	$(PYTHON) $(srcdir)/baseline2.py --existing \
+	$(PYTHON) $(srcdir)/baseline2.py --existing $(FORMATTING_FLAGS) \
 		$(qid_did_string_eid_agglomerative) $(did_tok) > $@
 	# TODO CHECK RESULT
 
@@ -282,7 +288,7 @@ $(baseline7): $(qid_did_string_eid) $(did_tok) $(baseline5) venv | $(outdir) \
 		$(qid_did_string_eid) $(baseline5) > $(qid_did_string_eid_exploratory)
 	# step 2: perform document distance clustering on remaining nils
 	rm -rf $(iptdir)/*
-	$(PYTHON) $(srcdir)/baseline3.py --existing \
+	$(PYTHON) $(srcdir)/baseline3.py --existing $(FORMATTING_FLAGS) \
 		$(qid_did_string_eid_exploratory) $(did_tok) $(expdir) > $@
 	# TODO CHECK RESULT
 
@@ -301,7 +307,8 @@ $(unsupervised0): $(rid_fid_weight_global) $(qid_rid) $(qid_eid) venv | \
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE DATAPOINT
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(FORMATTING_FLAGS) \
+		$(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # unsupervised with local context only
 $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
@@ -311,7 +318,8 @@ $(unsupervised1): $(rid_fid_weight_local) $(qid_rid) $(qid_eid) venv | \
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE DATAPOINT
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(FORMATTING_FLAGS) \
+		$(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # unsupervised with global and local context
 $(unsupervised2): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \
@@ -321,7 +329,8 @@ $(unsupervised2): $(rid_fid_weight) $(qid_rid) $(qid_eid) venv | \
 	# TODO WORKAROUND: SEED FILE WITH ONLY ONE DATAPOINT
 	echo "1\t1" > $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(FORMATTING_FLAGS) \
+		$(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised with global context only
 $(semi_supervised0): $(rid_fid_weight_global) $(rid_lid_score) $(qid_rid) \
@@ -331,7 +340,8 @@ $(semi_supervised0): $(rid_fid_weight_global) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_lid_score) $(seeds_Y)
 	cp $(rid_lid_score) $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(FORMATTING_FLAGS) \
+		$(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised with local context only
 $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
@@ -341,7 +351,8 @@ $(semi_supervised1): $(rid_fid_weight_local) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_lid_score) $(seeds_Y)
 	cp $(rid_lid_score) $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(FORMATTING_FLAGS) \
+		$(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # semi-supervised with global and local context
 $(semi_supervised2): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
@@ -351,7 +362,8 @@ $(semi_supervised2): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 	cp $(rid_lid_score) $(seeds_Y)
 	cp $(rid_lid_score) $(data_Y)
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
-	$(PYTHON) $(srcdir)/exploratory.py $(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+	$(PYTHON) $(srcdir)/exploratory.py $(FORMATTING_FLAGS) \
+		$(assgn_suffix) $(qid_rid) $(qid_eid) > $@
 
 # ==============================================================================
 

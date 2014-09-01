@@ -15,12 +15,15 @@ parser.add_argument('DID_TOK')
 parser.add_argument('EXPLORE_EM')
 parser.add_argument('--existing', help='pre-existing nill ids', 
         action='store_true')
+parser.add_argument('--padding', help='amount of padding in nid', 
+        type=int, default=4)
 
 args = parser.parse_args()
 QID_DID_STRING_EID = args.QID_DID_STRING_EID
 DID_TOK = args.DID_TOK
 EXPLORE_EM = args.EXPLORE_EM
 EXISTING = args.existing
+padding = args.padding
 
 # Load 'qid did string eid' into dataframe
 df1 = pd.read_table(QID_DID_STRING_EID, header=None, 

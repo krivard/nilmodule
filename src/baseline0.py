@@ -8,8 +8,12 @@ import sys
 # Parse path to input files
 parser = argparse.ArgumentParser()
 parser.add_argument('QID_DID_STRING_EID')
+parser.add_argument('--padding', help='amount of padding in nid', 
+        type=int, default=4)
+
 args = parser.parse_args()
 QID_DID_STRING_EID = args.QID_DID_STRING_EID
+padding = args.padding
 
 # Load 'qid did string eid' into dataframe
 df1 = pd.read_table(QID_DID_STRING_EID, header=None, 
@@ -23,7 +27,7 @@ df2 = df1[df1['eid'] == 'nil']
 
 # Assign nil-ID
 c = count(start=1)
-assign = lambda x: 'nil' + str(c.next()).zfill(3)
+assign = lambda x: 'nil' + str(c.next()).zfill(padding)
 df2['eid'] = df2.groupby('string')['eid'].transform(assign)
 
 # Merge nil-IDs back into original dataframe

@@ -10,11 +10,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('ASSGN')
 parser.add_argument('QID_RID')
 parser.add_argument('QID_EID')
+parser.add_argument('--padding', help='amount of padding in nid', 
+        type=int, default=4)
 
 args = parser.parse_args()
 ASSGN = args.ASSGN
 QID_RID = args.QID_RID
 QID_EID = args.QID_EID
+padding = args.padding
 
 # Load ExploreEM cluster assignments
 assignments = np.loadtxt(open(ASSGN))
@@ -32,7 +35,7 @@ df1['cid'] = nils
 df2 = pd.read_table(QID_EID, header=None, names=['qid', 'eid'])
 
 df3 = pd.merge(df2, df1, on='qid')
-df3['eid'] = df3.cid.map(lambda x: 'nil' + str(int(x)).zfill(3))
+df3['eid'] = df3.cid.map(lambda x: 'nil' + str(int(x)).zfill(padding))
 
 df2 = df2.set_index('qid')
 df3 = df3[['qid', 'eid']].set_index('qid')

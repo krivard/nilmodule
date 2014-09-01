@@ -16,6 +16,9 @@ parser.add_argument('--cluster', help='cluster distance metric',
         default='euclidean')
 parser.add_argument('--method', help='clustering method', default='single')
 parser.add_argument('--threshold', help='clustering threshold', default='0.5')
+parser.add_argument('--padding', help='amount of padding in nid', 
+        type=int, default=4)
+
 args = parser.parse_args()
 QID_SID_STRING_EID = args.QID_SID_STRING_EID
 SID_TOK = args.SID_TOK
@@ -23,6 +26,7 @@ metric_pairwise = args.pairwise
 metric_cluster= args.cluster
 method = args.method
 threshold = float(args.threshold)
+padding = args.padding
 
 # Load 'qid sid string eid' into dataframe
 df1 = pd.read_table(QID_SID_STRING_EID, header=None, 
@@ -69,7 +73,7 @@ for row in df4.iteritems():
         for i, sid in enumerate(docs):
             nid[(string, sid)] = ids[i]
 
-assignID = lambda x: 'nil' + str(nid[tuple(x)]).zfill(3)
+assignID = lambda x: 'nil' + str(nid[tuple(x)]).zfill(padding)
 df2['eid'] = df2[['string', 'sid']].apply(assignID, axis=1)
 
 df5 = df2.combine_first(df1)
