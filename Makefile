@@ -113,6 +113,7 @@ SCORER := $(rscdir)/el_scorer.py
 # ==============================================================================
 
 # perform baseline and exploratory clustering (output will not be evaluated)
+.DELETE_ON_ERROR:
 all: baseline explore
 
 # ==============================================================================
@@ -230,7 +231,7 @@ $(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
 # baseline clustering
 .PHONY: baseline
 baseline: $(baseline0) $(baseline1) $(baseline2) $(baseline3) \
-	$(baseline4) $(baseline6) 
+	$(baseline4) $(baseline6)
 	#$(baseline4) $(baseline5) $(baseline6) $(baseline7)
 
 # string only
@@ -298,6 +299,8 @@ $(baseline7): $(qid_did_string_eid) $(did_tok) $(baseline5) venv | $(outdir) \
 .PHONY: explore
 explore: $(unsupervised0) $(unsupervised1) $(unsupervised2) \
 	$(semi_supervised0) $(semi_supervised1) $(semi_supervised2)
+
+# TODO REFACTOR INTO ONE TARGET EACH ###
 
 # unsupervised with global context only
 $(unsupervised0): $(rid_fid_weight_global) $(qid_rid) $(qid_eid) venv | \
