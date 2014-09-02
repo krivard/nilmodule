@@ -1,0 +1,33 @@
+################################################################################
+#                   README NILCLUSTERING MODULE TAC/KBP 2014                   #
+################################################################################
+
+Configuration
+-------------
+
+Befor installing and running the code it is necessary to specify the paths to
+the external data (e.g., ProPPR output). This has to be done in the first
+section of the Makefile. The necessary files are:
+
+[DESCRIPTION OF FILES]
+
+[also: formatting]
+
+Installation
+------------
+
+Run "make" inside the main directory. This will set up a virtual environment
+with the necessary python dependencies and then run the different clustering
+scripts. If you only want to install the virtual environment without running 
+the clustering scripts, use "make venv" instead. 
+
+Running the code
+----------------
+
+[all, raw, baseline, explore targets]
+[Describe different stages of clustering]
+[Describe output]
+
+Cleaning up
+-----------
+

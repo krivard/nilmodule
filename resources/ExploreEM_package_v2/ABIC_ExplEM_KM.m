@@ -58,7 +58,7 @@ for iter = 1 : maxNumIter
     BaselineLL = 0;
     ExploreLL = 0;
     BaselineNumClusters = numClasses;
-    numClasses
+    %numClasses
     %iter
     % E step : Estimate P(cluster_j | X_i) based on cosine similarity
     S=sprintf('-------- KM Iteration : %d : E step started -------------', iter);
@@ -147,7 +147,7 @@ for iter = 1 : maxNumIter
         if (hard == 1)
             P_Cj_Xi(i, :) = zeros(1, numClasses);
         end
-
+        
         P_Cj_Xi(i, cID) = maxWt;
         NewAssgn(i) = cID;
         ExploreLL = ExploreLL + log(maxWt);
@@ -166,7 +166,8 @@ for iter = 1 : maxNumIter
         % Temp Recompute centorids
         TcentroidsTemp = P_Cj_XiNorm' * XNorm;
         TnumClasses = size(TcentroidsTemp,1);
-        
+       
+        %clusterSizes 
         % Keep only those clusters which have at least 1 point assigned to it
         Tcentroids = TcentroidsTemp(1:numSeedClasses, :);
         for c = numSeedClasses+1 : numClasses
@@ -215,6 +216,7 @@ for iter = 1 : maxNumIter
                 explore = 0;
                 NewAssgn = BaselineAssn;
                 P_Cj_XiNorm = normrow(Baseline_P_Cj_Xi);
+                %size(Baseline_P_Cj_Xi)
                 newLL = BaselineLL;
             end
         end
@@ -227,9 +229,18 @@ for iter = 1 : maxNumIter
     centroidsTemp = P_Cj_XiNorm' * XNorm;
     numClasses = size(centroidsTemp,1);
     
-    % Keep only those clusters which have at least 1 point assigned to it
-    centroids = centroidsTemp(1:numSeedClasses, :);
-    for c = numSeedClasses+1 : numClasses
+    % Keep only those clusters which have at more than 1 datapoints assigned to it
+    % Except for the case where, #seed classes=0, we keep at least 1 class to carry forward
+    if numSeedClasses == 0
+	numSeedClassesTemp = 1;
+    else
+	numSeedClassesTemp = numSeedClasses;
+    end
+    centroids = centroidsTemp(1:numSeedClassesTemp, :);
+    %numSeedClasses
+    %sum(P_Cj_XiNorm(:,1))
+    %clusterSizes
+    for c = numSeedClassesTemp+1 : numClasses
         if (sum(P_Cj_XiNorm(:,c)) > 0  && clusterSizes(c) > 1)
             centroids = [centroids ; centroidsTemp(c, :)];
         end
