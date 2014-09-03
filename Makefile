@@ -14,7 +14,6 @@ QSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/querySenten
 INSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/inSentence_sid_tok.cfacts
 #TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
 TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.genericType.txt
-GOLD := /remote/curtis/krivard/2014/e54_v11.tac_2014_kbp_english_EDL_training_KB_links.tab
 
 # formatting parameters
 FORMATTING_FLAGS := --padding=4
@@ -31,7 +30,6 @@ rscdir := resources
 expdir := $(rscdir)/ExploreEM_package_v2
 iptdir := $(expdir)/data
 outdir := output
-resdir := results
 srcdir := src
 
 # ------------------------------------------------------------------------------
@@ -94,12 +92,6 @@ semi_supervised2 := $(outdir)/semi_supervised2.txt
 
 # ------------------------------------------------------------------------------
 
-# evaluation input and results
-gold_qid_eid := $(datdir)/gold_qid_eid.txt
-results := $(resdir)/results.txt
-
-# ------------------------------------------------------------------------------
-
 # python
 PYTHON := . venv/bin/activate; python
 
@@ -107,12 +99,9 @@ PYTHON := . venv/bin/activate; python
 M_FLAGS := -nodesktop -nosplash -r
 EM_MAIN := "try, All_BIC_ExplEM_Main; catch, end, exit"
 
-# scorer
-SCORER := $(rscdir)/el_scorer.py
-
 # ==============================================================================
 
-# perform baseline and exploratory clustering (output will not be evaluated)
+# perform baseline and exploratory clustering
 .DELETE_ON_ERROR:
 all: baseline explore
 
@@ -136,7 +125,6 @@ $(qid_name): $(QNAME) | $(datdir)
 $(qid_sid): $(QSENT) | $(datdir)
 	cp $(QSENT) $@
 
-# TODO ### SORT OUTPUT
 $(qid_did): $(SCORE_TRAIN) $(SCORE_TEST) venv | $(datdir)
 	$(PYTHON) $(srcdir)/parse_did.py $(SCORE_TRAIN) $(SCORE_TEST) > $@
 
@@ -160,7 +148,6 @@ $(sid_tok): $(INSENT) | $(datdir)
 $(qid_rid): venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_qid_rid.py $(qid_eid) > $@
 
-# TODO ### SORT OUTPUT
 $(qid_eid_score): $(SCORE_TRAIN) $(SCORE_TEST) venv | $(datdir)
 	$(PYTHON) $(srcdir)/parse_score.py $(SCORE_TRAIN) $(SCORE_TEST) > $@
 
@@ -215,16 +202,8 @@ $(qid_tacid): $(tacpr_raw) $(qid_name) venv | $(datdir)
 	#$(PYTHON) $(srcdir)/generate_qid_tacid.py $(TACPR) $(qid_name) > $@
 	$(PYTHON) $(srcdir)/generate_qid_tacid.py $(tacpr_raw) $(qid_name) > $@
 
-# TODO ###
 $(rid_lid_score): $(qid_tacid) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_rid_lid_score.py $(qid_tacid) $(qid_rid) > $@
-
-# ------------------------------------------------------------------------------
-
-# prepare input for scorer
-$(gold_qid_eid): $(GOLD) $(baseline0) venv | $(datdir)
-	# TODO WORKAROUND: TRUNCATE GOLDSTANDARD TO SMALLEST COMMON SUBSET
-	$(PYTHON) $(srcdir)/generate_gold_qid_eid.py $(GOLD) $(baseline0) > $@
 
 # ==============================================================================
 
@@ -263,7 +242,6 @@ $(baseline4): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir)
 		$(qid_sid_string_eid) $(sid_tok) > $@
 
 # string and sentence distance (exploratory)
-# TODO PROBLEM HERE WHEN USING TRAIN + TEST DATA ###
 $(baseline5): $(qid_sid_string_eid) $(sid_tok) venv | $(outdir) $(iptdir)
 	rm -rf $(iptdir)/*
 	$(PYTHON) $(srcdir)/baseline5.py $(FORMATTING_FLAGS) \
@@ -370,14 +348,6 @@ $(semi_supervised2): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 
 # ==============================================================================
 
-# evaluate output
-evaluate : $(results)
-
-$(results): $(gold_qid_eid) $(outdir) venv | $(resdir)
-	$(PYTHON) $(SCORER) $(gold_qid_eid) $(outdir) > $@
-
-# ==============================================================================
-
 # create virtualenv
 venv: venv/bin/activate
 
@@ -401,16 +371,12 @@ $(iptdir):
 $(outdir):
 	mkdir $@
 
-# create results directory
-$(resdir):
-	mkdir $@
-
 # ==============================================================================
 
-# remove data, output, and results
+# remove data and output
 .PHONY: clean
 clean:
-	rm -rf $(datdir) $(outdir) $(resdir)
+	rm -rf $(datdir) $(outdir)
 
 # remove virtualenv
 .PHONY: cleandist
