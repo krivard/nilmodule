@@ -34,7 +34,7 @@ fi
 
 cat >> Makefile.in <<EOF
 #### DEFAULTS:
-ifeq (,\$(strip \$(EXTDIR))
+ifeq (,\$(strip \$(EXTDIR)))
 EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4
 endif
 PROPPR_TRAIN := \$(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
