@@ -13,7 +13,6 @@ Configuration
 Before installing and running the code it is necessary to specify the paths to
 the external data (e.g., ProPPR output). This has to be done in the first
 section of the Makefile. The necessary files are:
-
 - PROPPR_TRAIN: 'qid eid'. ProPPR results for the training data with query 
                 column and eid column, e.g.,
                  ------------------------------------
@@ -72,10 +71,20 @@ section of the Makefile. The necessary files are:
             | inSentence    d1020302s1  champions |
             | inSentence    d1020302s1  chelsea   |
              -------------------------------------
-- TACPR 
+- TACPR:    'did wp14 entype score begin end mention tacid name type gentype'.
+            File containing a TAC-aligned PR output file, e.g.,
+             ----------------------------------------------------------
+            | AFP_ENG_20090802.0401	Tikka (food)	prepared food \    |
+            |   0.252	66	71	tikka				OTHER              |
+            | AFP_ENG_20090802.0401	Spice mix	null \                 |
+            |    0.132	72	78	masala				NULL               |
+            | AFP_ENG_20090802.0401	Agence France-Presse	company	\  |
+            |    0.113	155	158	AFP	E0689220	Agence France-Presse \ |
+            |    ORG	ORGANIZATION                                   |
+             ----------------------------------------------------------
 
-It is also possible to specify the amount of padding (e.g., the number of "X"
-in "NILXXX") by changing the FORMATTING_FLAGS.
+It is possible to specify the amount of padding (e.g., the number of "X" in 
+"NILXXX") by changing the FORMATTING_FLAGS.
 
 Installation
 ------------
