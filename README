@@ -42,21 +42,33 @@ clustering algorithms.
 
 - "make baseline" will run the baseline clustering algorithms. At the moment,
 there are the following baseline algorithms:
-    -- baseline0:   string only. All queries with the same query string are
+    -- baseline0:   String only. All queries with the same query string are
                     assigned the same nid.
-    -- baseline1:   string and did. All queries with the same query string and
+    -- baseline1:   String and did. All queries with the same query string and
                     the same did are assigned the same nid.
-    -- baseline2:   string and document distance. Queries that have the same 
+    -- baseline2:   String and document distance. Queries that have the same 
                     query string are assigned to different clusters based on
-                    the distance between the documents they appear in.
+                    the distance between the documents they appear in. The 
+                    distance is calculated based on the tokens that appear
+                    in the documents.
+                    Agglomerative clustering is used. The clustering parameters
+                    (pairwise distance measure between documents, distance 
+                    measure between clusters, clustering method and threshold 
+                    for flattening) can be specified in the makefile. Detailed 
+                    information regarding the clustering algorithm and its 
+                    parameters can be found in the scipy documentation. 
+    -- baseline3:   String and document distance. Same as baseline2, but 
+                    instead of agglomerative clustering exploratory clustering
+                    is used. Detailed information regarding the clustering
+                    algorithm and its parameters can be found in the ExploreEM
+                    documentation.
+    -- baseline4:   String and sentence distance. Queries that have the same 
+                    query string are assigned to different clusters based on
+                    the distance between the sentences they appear in.
                     Agglomerative clustering is used. The clustering parameters
                     (pairwise distance measure between documents, distance 
                     measure between clusters, clustering method and threshold 
                     for flattening) can be specified in the makefile.
-    -- baseline3:   string and document distance. Same as baseline2, but 
-                    instead of agglomerative clustering exploratory clustering
-                    is used.  
-    -- baseline4: 
     -- baseline5: 
     -- baseline6: 
     -- baseline7: 
