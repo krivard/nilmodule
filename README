@@ -48,7 +48,7 @@ there are the following baseline algorithms:
                     the same did are assigned the same nid.
     -- baseline2:   String and document distance. Queries that have the same 
                     query string are assigned to different clusters based on
-                    the distance between the documents they appear in. The 
+                    the distance between the documents they appear in. This
                     distance is calculated based on the tokens that appear
                     in the documents.
                     Agglomerative clustering is used. The clustering parameters
@@ -64,12 +64,21 @@ there are the following baseline algorithms:
                     documentation.
     -- baseline4:   String and sentence distance. Queries that have the same 
                     query string are assigned to different clusters based on
-                    the distance between the sentences they appear in.
+                    the distance between the sentences they appear in. The 
+                    distance between the documents they appear in. This 
+                    distance is calculated based on the tokens that appear
+                    in the documents.
                     Agglomerative clustering is used. The clustering parameters
                     (pairwise distance measure between documents, distance 
                     measure between clusters, clustering method and threshold 
-                    for flattening) can be specified in the makefile.
-    -- baseline5: 
+                    for flattening) can be specified in the makefile. Detailed 
+                    information regarding the clustering algorithm and its 
+                    parameters can be found in the scipy documentation. 
+    -- baseline5:   String and sentence distance. Same as baseline4, but 
+                    instead of agglomerative clustering exploratory clustering
+                    is used. Detailed information regarding the clustering
+                    algorithm and its parameters can be found in the ExploreEM
+                    documentation.
     -- baseline6: 
     -- baseline7: 
 
