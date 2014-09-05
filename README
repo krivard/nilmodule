@@ -15,39 +15,63 @@ the external data (e.g., ProPPR output). This has to be done in the first
 section of the Makefile. The necessary files are:
 
 - PROPPR_TRAIN: 'qid eid'. ProPPR results for the training data with query 
-                column and eid column, e.g.
+                column and eid column, e.g.,
                  ------------------------------------
                 | edl14_eng_training_0001   nil      |
                 | edl14_eng_training_0002   nil      |
                 | edl14_eng_training_0006   e0731517 |
                  ------------------------------------
 - PROPPR_TEST:  'qid eid'. ProPPR results for the test data (if any) with
-                query column and eid column, e.g.
+                query column and eid column, e.g.,
                  ------------------------------------
                 | edl14_eng_training_0005   nil      |
                 | edl14_eng_training_0032   e0330409 |
                 | edl14_eng_training_0044   e0805223 |
                  ------------------------------------
 - SCORE_TRAIN:  'rank score eid'. ProPPR solutions (scores) for the training
-                data, e.g.
-     -----------------------------------------------------------------------------
-    | # proved 1	answerQuery(d1020302,edl14_eng_training_0363,-1)	2107 msec |
-    | 1	0.9039872065556289  	-1=c[nil]                                         |
-    | 2	0.004607878107344008	-1=c[e0082408]                                    |
-    | 3	0.004607878107344008	-1=c[e0491365]                                    |
-     -----------------------------------------------------------------------------
+                data, e.g.,
+  -----------------------------------------------------------------------------
+ | # proved 1    answerQuery(d1020302,edl14_eng_training_0363,-1)    2107 msec |
+ | 1 0.9039872065556289      -1=c[nil]                                         |
+ | 2 0.004607878107344008    -1=c[e0082408]                                    |
+ | 3 0.004607878107344008    -1=c[e0491365]                                    |
+  -----------------------------------------------------------------------------
 - SCORE_TEST:   'rank score eid'. ProPPR solutions (scores) for the test data
-                (if any), e.g.
-     -----------------------------------------------------------------------------
-    | # proved 1	answerQuery(d1020302,edl14_eng_training_0956,-1)	3319 msec |
-    | 1	0.9029592137998453	-1=c[nil]                                             |
-    | 2	0.003451444907669729	-1=c[e0027798]                                    |
-    | 3	0.003451444907669729	-1=c[e0658312]                                    |
-    -----------------------------------------------------------------------------
-- QNAME 
-- TOKEN 
-- QSENT 
-- INSENT 
+                (if any), e.g.,
+  -----------------------------------------------------------------------------
+ | # proved 1    answerQuery(d1020302,edl14_eng_training_0956,-1)    3319 msec |
+ | 1 0.9029592137998453      -1=c[nil]                                         |
+ | 2 0.003451444907669729    -1=c[e0027798]                                    |
+ | 3 0.003451444907669729    -1=c[e0658312]                                    |
+ -----------------------------------------------------------------------------
+- QNAME:    'queryName qid string'. File containing the qid and the query string
+            as well as a "queryName" dummy column, e.g.,
+             ---------------------------------------------------------
+            | queryName edl14_eng_training_0001 xenophon              |
+            | queryName edl14_eng_training_0002 richmond              |
+            | queryName edl14_eng_training_0003 newark_teachers_union |
+             ---------------------------------------------------------
+- TOKEN:    'inDocument did token'. File containing the did, the tokens in that
+            document as well as an "inDocument" dummy column, e.g.,
+             --------------------------------------
+            | inDocument    d1020302    abramovich |
+            | inDocument    d1020302    africa     |
+            | inDocument    d1020302    agents     |
+             --------------------------------------
+- QSENT:    'querySentence qid sid'. File containing the qid and the sid as
+            well as a "querySentence" dummy column, e.g.,
+             ---------------------------------------------------
+            | querySentence EDL14_ENG_TRAINING_0002 d484430s1   |
+            | querySentence EDL14_ENG_TRAINING_0003 d1886127s12 |
+            | querySentence EDL14_ENG_TRAINING_0006 d54485s10   |
+             ---------------------------------------------------
+- INSENT:   'inSentence sid token'. File containing the sid, the tokens in that
+            sentence as well as an "inSentence" dummy column, e.g.,
+             -------------------------------------
+            | inSentence    d1020302s1  ballack   |
+            | inSentence    d1020302s1  champions |
+            | inSentence    d1020302s1  chelsea   |
+             -------------------------------------
 - TACPR 
 
 It is also possible to specify the amount of padding (e.g., the number of "X"
