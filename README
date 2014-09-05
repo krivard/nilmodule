@@ -10,16 +10,41 @@ Project structure
 Configuration
 -------------
 
-Befor installing and running the code it is necessary to specify the paths to
+Before installing and running the code it is necessary to specify the paths to
 the external data (e.g., ProPPR output). This has to be done in the first
 section of the Makefile. The necessary files are:
 
-[description]
-- PROPPR_TEST
-- PROPPR_TRAIN 
+- PROPPR_TRAIN: 'qid eid'. ProPPR results for the training data with query 
+                column and eid column, e.g.
+                 ------------------------------------
+                | edl14_eng_training_0001   nil      |
+                | edl14_eng_training_0002   nil      |
+                | edl14_eng_training_0006   e0731517 |
+                 ------------------------------------
+- PROPPR_TEST:  'qid eid'. ProPPR results for the test data (if any) with
+                query column and eid column, e.g.
+                 ------------------------------------
+                | edl14_eng_training_0005   nil      |
+                | edl14_eng_training_0032   e0330409 |
+                | edl14_eng_training_0044   e0805223 |
+                 ------------------------------------
+- SCORE_TRAIN:  'rank score eid'. ProPPR solutions (scores) for the training
+                data, e.g.
+     -----------------------------------------------------------------------------
+    | # proved 1	answerQuery(d1020302,edl14_eng_training_0363,-1)	2107 msec |
+    | 1	0.9039872065556289  	-1=c[nil]                                         |
+    | 2	0.004607878107344008	-1=c[e0082408]                                    |
+    | 3	0.004607878107344008	-1=c[e0491365]                                    |
+     -----------------------------------------------------------------------------
+- SCORE_TEST:   'rank score eid'. ProPPR solutions (scores) for the test data
+                (if any), e.g.
+     -----------------------------------------------------------------------------
+    | # proved 1	answerQuery(d1020302,edl14_eng_training_0956,-1)	3319 msec |
+    | 1	0.9029592137998453	-1=c[nil]                                             |
+    | 2	0.003451444907669729	-1=c[e0027798]                                    |
+    | 3	0.003451444907669729	-1=c[e0658312]                                    |
+    -----------------------------------------------------------------------------
 - QNAME 
-- SCORE_TEST 
-- SCORE_TRAIN 
 - TOKEN 
 - QSENT 
 - INSENT 
