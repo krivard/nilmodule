@@ -1,26 +1,7 @@
 ################################################################################
 #                 MAKEFILE NILCLUSTERING MODULE TAC/KBP 2014                   #
 ################################################################################
-
-# external data (NB these lines will have to be changed)
-EXTDIR := /remote/curtis/krivard/2014/kbp.dataset.2014-0.3
-PROPPR_TRAIN := $(EXTDIR)/proppr-output/kbp_train.trained.t_0.028.results.txt
-PROPPR_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.t_0.028.results.txt
-QNAME := $(EXTDIR)/kbp.cfacts/queryName_qid_name.cfacts
-SCORE_TRAIN := $(EXTDIR)/proppr-output/kbp_train.trained.solutions.txt
-SCORE_TEST := $(EXTDIR)/proppr-output/kbp_test.trained.solutions.txt
-TOKEN := $(EXTDIR)/kbp.cfacts/inDocument_did_tok.cfacts
-QSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/querySentence_qid_sid.cfacts
-INSENT := /remote/curtis/krivard/2014/kbp.dataset.2014-0.4/kbp.cfacts/inSentence_sid_tok.cfacts
-#TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.txt
-TACPR := /remote/curtis/bbd/KBP_2014/alignKBs/e54_v11.docid_wp14_enType_score_begin_end_mention.TAC_id_name_type.genericType.txt
-
-# formatting parameters
-FORMATTING_FLAGS := --padding=4
-
-# baseline clustering parameters
-GLOBAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.5
-LOCAL_BASELINE_CLUSTERING_FLAGS := --threshold=0.7
+include Makefile.in
 
 # ==============================================================================
 
