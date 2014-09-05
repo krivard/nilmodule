@@ -79,8 +79,16 @@ there are the following baseline algorithms:
                     is used. Detailed information regarding the clustering
                     algorithm and its parameters can be found in the ExploreEM
                     documentation.
-    -- baseline6: 
-    -- baseline7: 
+    -- baseline6:   String and sentence distance with string and document
+                    distance as a fallback. In a first step, queries for which
+                    sentence information is available are clustered using
+                    baseline4. In a second step, the remaining queries are
+                    clustered using baseline2.
+    -- baseline7:   String and sentence distance with string and document
+                    distance as a fallback. In a first step, queries for which
+                    sentence information is available are clustered using
+                    baseline5. In a second step, the remaining queries are
+                    clustered using baseline3.
 
 [all, raw, baseline, explore targets]
 
