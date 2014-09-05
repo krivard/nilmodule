@@ -1,12 +1,7 @@
-add version with global and local context
-add version with local context (primary) and global context (fallback)
 write documentation
-create config file/folder with clustering parameters or use cl arguments (better)
 matlab hook for parameters
 sanitize input (i.e. converted to lower case etc.)
 sort input
 drop dummy column in inQuery and inDocument
 change "term" to "token"
-make sur nid start with "nil001" (not "nil000")
 use threshold for score in parse_score.py
-use .DELETE_ON_ERROR for data files

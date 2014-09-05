@@ -9,9 +9,19 @@ Befor installing and running the code it is necessary to specify the paths to
 the external data (e.g., ProPPR output). This has to be done in the first
 section of the Makefile. The necessary files are:
 
-[DESCRIPTION OF FILES]
+[description]
+- PROPPR_TEST
+- PROPPR_TRAIN 
+- QNAME 
+- SCORE_TEST 
+- SCORE_TRAIN 
+- TOKEN 
+- QSENT 
+- INSENT 
+- TACPR 
 
-[also: formatting]
+It is also possible to specify the amount of padding (e.g., the number of "X"
+in "NILXXX") by changing the FORMATTING_FLAGS.
 
 Installation
 ------------
@@ -24,10 +34,40 @@ the clustering scripts, use "make venv" instead.
 Running the code
 ----------------
 
+The makefile provides several targets corresponding to the different steps of
+the clustering process:
+
+- "make raw" will generate all the input needed for the different 
+clustering algorithms. 
+
+- "make baseline" will run the baseline clustering algorithms. At the moment,
+there are the following baseline algorithms:
+    -- baseline0:   string only. All queries with the same query string are
+                    assigned the same nid.
+    -- baseline1:   string and did. All queries with the same query string and
+                    the same did are assigned the same nid.
+    -- baseline2:   string and document distance. Queries that have the same 
+                    query string are assigned to different clusters based on
+                    the distance between the documents they appear in.
+                    Agglomerative clustering is used. The clustering parameters
+                    (pairwise distance measure between documents, distance 
+                    measure between clusters, clustering method and threshold 
+                    for flattening) can be specified in the makefile.
+    -- baseline3:   string and document distance. Same as baseline2, but 
+                    instead of agglomerative clustering exploratory clustering
+                    is used.  
+    -- baseline4: 
+    -- baseline5: 
+    -- baseline6: 
+    -- baseline7: 
+
 [all, raw, baseline, explore targets]
-[Describe different stages of clustering]
-[Describe output]
+
+[different stages of clustering]
+
+[output]
 
 Cleaning up
 -----------
 
+[clean]
