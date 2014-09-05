@@ -1,4 +1,5 @@
 write documentation
+remove second row in dataY dummy data
 matlab hook for parameters
 sanitize input (i.e. converted to lower case etc.)
 sort input

@@ -40,8 +40,8 @@ the clustering process:
 - "make raw" will generate all the input needed for the different 
 clustering algorithms. 
 
-- "make baseline" will run the baseline clustering algorithms. At the moment,
-there are the following baseline algorithms:
+- "make baseline" will run baseline clustering . At the moment, there are the 
+following baseline versions:
     -- baseline0:   String only. All queries with the same query string are
                     assigned the same nid.
     -- baseline1:   String and did. All queries with the same query string and
@@ -89,6 +89,23 @@ there are the following baseline algorithms:
                     sentence information is available are clustered using
                     baseline5. In a second step, the remaining queries are
                     clustered using baseline3.
+
+- "make explore" will run exploreEM clustering. At the moment, there are the 
+following exploreEM versions:
+    -- unsupervised0:   String, did, document tokens, and score. For each query, 
+                        a feature vector with the query string, did, the tokens 
+                        of the document and the ProPPR scores is generated. This 
+                        is a global context only unsupervised version of 
+                        exploreEM.
+    -- unsupervised1:   String, sid, sentence tokens, and score. For each query, 
+                        a feature vector with the query string, did, the tokens 
+                        of the sentence and the ProPPR scores is generated. This 
+                        is a local context only unsupervised version of 
+                        exploreEM.
+    -- unsupervised2:   
+    -- semi_supervised0:
+    -- semi_supervised1:   
+    -- semi_supervised2:   
 
 [all, raw, baseline, explore targets]
 
