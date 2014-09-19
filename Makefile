@@ -89,6 +89,7 @@ unsupervised2 := $(outdir)/unsupervised2.txt
 semi_supervised0 := $(outdir)/semi_supervised0.txt
 semi_supervised1 := $(outdir)/semi_supervised1.txt
 semi_supervised2 := $(outdir)/semi_supervised2.txt
+pagereactor0 := $(outdir)/pagereactor0.txt
 
 # ------------------------------------------------------------------------------
 
@@ -101,9 +102,9 @@ EM_MAIN := "try, All_BIC_ExplEM_Main; catch, end, exit"
 
 # ==============================================================================
 
-# perform baseline and exploratory clustering
+# perform baseline, exploratory and pagereactor clustering
 .DELETE_ON_ERROR:
-all: baseline explore
+all: baseline explore pagereactor
 
 # ==============================================================================
 
@@ -345,6 +346,16 @@ $(semi_supervised2): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 	cd $(expdir); matlab $(M_FLAGS) $(EM_MAIN)
 	$(PYTHON) $(srcdir)/exploratory.py $(FORMATTING_FLAGS) \
 		$(assgn_suffix) $(qid_rid) $(qid_eid) > $@
+
+# ------------------------------------------------------------------------------
+
+# pagereactor clustering
+.PHONY: pagereactor
+pagereactor: $(pagereactor0)
+
+# pagereactor output grouped by string
+$(pagereactor0): $(qid_tacid) | $(outdir)
+	cp $(qid_tacid) $@
 
 # ==============================================================================
 
