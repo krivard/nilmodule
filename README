@@ -190,8 +190,8 @@ following exploreEM versions:
 Detailed information regarding the clustering algorithm and its parameters can 
 be found in the ExploreEM documentation.
 
-- "make" or "make all" is equivalent to calling "make raw", "make baseline" and
-"make explore" individually.
+- "make" or "make all" is shorthand for calling "make raw", "make baseline" and
+"make explore".
 
 Cleaning up
 -----------
