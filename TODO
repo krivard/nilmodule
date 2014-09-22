@@ -1,4 +1,4 @@
-write documentation
+correct numbering in exploreEM (start with nil0001)
 remove second row in dataY dummy data
 matlab hook for parameters
 sanitize input (i.e. converted to lower case etc.)
