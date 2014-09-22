@@ -181,8 +181,8 @@ $(tacpr_raw): venv | $(datdir)
 		$(TACPR) > $@
 
 $(qid_tacid): $(tacpr_raw) $(qid_name) venv | $(datdir)
-	#$(PYTHON) $(srcdir)/generate_qid_tacid.py $(TACPR) $(qid_name) > $@
-	$(PYTHON) $(srcdir)/generate_qid_tacid.py $(tacpr_raw) $(qid_name) > $@
+	awk 'BEGIN{FS=OFS="\t"}{print sprintf("CMUPR_%04d",NR),$$8}' $(tacpr_raw) > $@
+#	$(PYTHON) $(srcdir)/generate_qid_tacid.py $(tacpr_raw) $(qid_name) > $@
 
 $(rid_lid_score): $(qid_tacid) $(qid_rid) venv | $(datdir)
 	$(PYTHON) $(srcdir)/generate_rid_lid_score.py $(qid_tacid) $(qid_rid) > $@
@@ -335,8 +335,12 @@ $(semi_supervised2): $(rid_fid_weight) $(rid_lid_score) $(qid_rid) \
 pagereactor: $(pagereactor0)
 
 # pagereactor output grouped by string
-$(pagereactor0): $(qid_tacid) | $(outdir)
-	cp $(qid_tacid) $@
+#$(pagereactor0): $(qid_tacid) | $(outdir)
+#	cp $(qid_tacid) $@
+
+$(pagereactor0):
+	cd pagereactor; $(MAKE) $(MFLAGS)
+	cp pagereactor/pagereactor0.txt $@
 
 # ==============================================================================
 
